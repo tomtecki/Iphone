@@ -502,8 +502,10 @@ const PRICE_DATA = [
 const POPULAR_MODELS = ["iPhone 17 Pro Max", "iPhone 17", "iPhone 16", "iPhone 15 Pro Max", "iPhone 14", "iPhone 13 / 13 mini"];
 
 const modelList = document.querySelector("[data-model-list]");
-const modelTree = document.querySelector("[data-model-tree]");
-const treeStepLabel = document.querySelector("[data-tree-step]");
+const generationSelect = document.querySelector("[data-generation-select]");
+const variantSelect = document.querySelector("[data-variant-select]");
+const searchToggle = document.querySelector("[data-search-toggle]");
+const searchBox = document.querySelector("[data-search-box]");
 const modelPicker = document.querySelector("[data-model-picker]");
 const popularModelsList = document.querySelector("[data-popular-models]");
 const modelSearch = document.querySelector("#model-search");
@@ -514,86 +516,120 @@ const pricePanel = document.querySelector(".price-panel");
 
 const DEFAULT_MODEL = PRICE_DATA.find((item) => item.model === "iPhone 15 Pro Max") || PRICE_DATA[0];
 
+const GENERATIONS = [];
+PRICE_DATA.forEach((item) => {
+  if (!GENERATIONS.includes(item.generation)) {
+    GENERATIONS.push(item.generation);
+  }
+});
+
 let activeModel = DEFAULT_MODEL.model;
 let openGeneration = null;
 
-function selectModel(item) {
+function selectModel(item, options = {}) {
   activeModel = item.model;
   openGeneration = item.generation;
   renderModelList(modelSearch ? modelSearch.value : "");
-  renderModelTree();
   renderPopularModels();
+  syncSelects();
   renderPrices(item);
-  if (pricePanel && window.matchMedia("(max-width: 900px)").matches) {
+  if (!options.skipScroll && pricePanel && window.matchMedia("(max-width: 900px)").matches) {
     pricePanel.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 
-function renderModelTree() {
-  if (!modelTree) {
+function populateGenerationSelect() {
+  if (!generationSelect) {
     return;
   }
 
-  modelTree.innerHTML = "";
+  GENERATIONS.forEach((generation) => {
+    const option = document.createElement("option");
+    option.value = generation;
+    option.textContent = generation;
+    generationSelect.append(option);
+  });
+}
 
-  if (!openGeneration) {
-    if (treeStepLabel) {
-      treeStepLabel.textContent = "Krok 1: wybierz generację";
+function populateVariantSelect(generation) {
+  if (!variantSelect) {
+    return;
+  }
+
+  variantSelect.innerHTML = "";
+
+  if (!generation) {
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Najpierw wybierz generację";
+    variantSelect.append(placeholder);
+    variantSelect.disabled = true;
+    return;
+  }
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Wybierz wariant";
+  variantSelect.append(placeholder);
+
+  PRICE_DATA.filter((item) => item.generation === generation).forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item.model;
+    option.textContent = item.variantLabel;
+    variantSelect.append(option);
+  });
+
+  variantSelect.disabled = false;
+}
+
+function syncSelects() {
+  if (generationSelect) {
+    generationSelect.value = openGeneration || "";
+  }
+  populateVariantSelect(openGeneration);
+  if (variantSelect && openGeneration) {
+    variantSelect.value = activeModel;
+  }
+}
+
+if (generationSelect) {
+  generationSelect.addEventListener("change", () => {
+    openGeneration = generationSelect.value || null;
+    populateVariantSelect(openGeneration);
+  });
+}
+
+if (variantSelect) {
+  variantSelect.addEventListener("change", () => {
+    const item = PRICE_DATA.find((entry) => entry.model === variantSelect.value);
+    if (item) {
+      selectModel(item, { skipScroll: true });
     }
+  });
+}
 
-    const generations = [];
-    PRICE_DATA.forEach((item) => {
-      if (!generations.includes(item.generation)) {
-        generations.push(item.generation);
+if (searchToggle && searchBox) {
+  searchToggle.addEventListener("click", () => {
+    const isHidden = searchBox.hasAttribute("hidden");
+    if (isHidden) {
+      searchBox.removeAttribute("hidden");
+      searchToggle.setAttribute("aria-expanded", "true");
+      searchToggle.textContent = "Ukryj wyszukiwanie";
+      if (modelSearch) {
+        modelSearch.focus();
       }
-    });
-
-    const wrap = document.createElement("div");
-    wrap.className = "generation-list";
-
-    generations.forEach((generation) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "model-button generation-button";
-      button.textContent = generation;
-      button.addEventListener("click", () => {
-        openGeneration = generation;
-        renderModelTree();
-      });
-      wrap.append(button);
-    });
-
-    modelTree.append(wrap);
-    return;
-  }
-
-  if (treeStepLabel) {
-    treeStepLabel.textContent = `Krok 2: wybierz wariant (${openGeneration})`;
-  }
-
-  const backButton = document.createElement("button");
-  backButton.type = "button";
-  backButton.className = "tree-back";
-  backButton.textContent = "← Wszystkie generacje";
-  backButton.addEventListener("click", () => {
-    openGeneration = null;
-    renderModelTree();
+    } else {
+      searchBox.setAttribute("hidden", "");
+      searchToggle.setAttribute("aria-expanded", "false");
+      searchToggle.textContent = "Szukaj po nazwie modelu";
+      if (modelPicker) {
+        modelPicker.classList.remove("is-searching");
+      }
+      if (modelSearch) {
+        modelSearch.value = "";
+      }
+    }
   });
-  modelTree.append(backButton);
-
-  const variantWrap = document.createElement("div");
-  variantWrap.className = "variant-list";
-
-  PRICE_DATA.filter((item) => item.generation === openGeneration).forEach((item) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `model-button${item.model === activeModel ? " is-active" : ""}`;
-    button.textContent = item.variantLabel;
-    button.addEventListener("click", () => selectModel(item));
-    variantWrap.append(button);
-  });
-
-  modelTree.append(variantWrap);
 }
 
 function renderPopularModels() {
@@ -691,9 +727,10 @@ if (preselectedModel) {
   openGeneration = preselectedModel.generation;
 }
 
+populateGenerationSelect();
 renderPopularModels();
 renderModelList();
-renderModelTree();
+syncSelects();
 renderPrices(preselectedModel || undefined);
 
 if (preselectedModel && pricePanel) {

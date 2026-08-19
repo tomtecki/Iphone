@@ -337,15 +337,30 @@
               <span class="popular-models-label">Popularne modele</span>
               <div class="popular-models-list" data-popular-models></div>
             </div>
-            <label class="model-search">
+            <div class="model-select-block">
+              <h3 class="model-select-heading">Wybierz dokładny model</h3>
+              <div class="model-select-row">
+                <label class="model-select">
+                  Generacja
+                  <select data-generation-select>
+                    <option value="">Wybierz generację</option>
+                  </select>
+                </label>
+                <label class="model-select">
+                  Wariant
+                  <select data-variant-select disabled>
+                    <option value="">Najpierw wybierz generację</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <button type="button" class="search-toggle" data-search-toggle aria-expanded="false" aria-controls="model-search-box">
+              Szukaj po nazwie modelu
+            </button>
+            <label class="model-search" id="model-search-box" data-search-box hidden>
               Wyszukaj model
               <input id="model-search" type="search" placeholder="np. iPhone 13" autocomplete="off">
             </label>
-            <div class="model-tree-block">
-              <h3 class="model-tree-heading">Wybierz model</h3>
-              <p class="model-tree-step" data-tree-step>Krok 1: wybierz generację</p>
-              <div class="model-tree" data-model-tree></div>
-            </div>
             <div class="model-list" data-model-list></div>
           </div>
           <div class="price-panel" aria-live="polite">
