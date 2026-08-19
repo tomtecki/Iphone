@@ -515,7 +515,7 @@ const pricePanel = document.querySelector(".price-panel");
 const DEFAULT_MODEL = PRICE_DATA.find((item) => item.model === "iPhone 15 Pro Max") || PRICE_DATA[0];
 
 let activeModel = DEFAULT_MODEL.model;
-let openGeneration = DEFAULT_MODEL.generation;
+let openGeneration = null;
 
 function selectModel(item) {
   activeModel = item.model;
