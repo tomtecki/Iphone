@@ -513,6 +513,8 @@ const selectedModel = document.querySelector("[data-selected-model]");
 const priceCaption = document.querySelector("[data-price-caption]");
 const priceRows = document.querySelector("[data-price-rows]");
 const pricePanel = document.querySelector(".price-panel");
+const modelPhotoImg = document.querySelector("[data-model-photo-img]");
+const modelPhotoPlaceholder = document.querySelector("[data-model-photo-placeholder]");
 
 const DEFAULT_MODEL = PRICE_DATA.find((item) => item.model === "iPhone 15 Pro Max") || PRICE_DATA[0];
 
@@ -682,6 +684,19 @@ function renderPrices(item = DEFAULT_MODEL) {
   selectedModel.textContent = item.model;
   priceCaption.textContent = `Cennik napraw dla ${item.model}`;
   priceRows.innerHTML = "";
+
+  if (modelPhotoImg && modelPhotoPlaceholder) {
+    if (item.image) {
+      modelPhotoImg.src = item.image;
+      modelPhotoImg.alt = item.model;
+      modelPhotoImg.removeAttribute("hidden");
+      modelPhotoPlaceholder.setAttribute("hidden", "");
+    } else {
+      modelPhotoImg.setAttribute("hidden", "");
+      modelPhotoImg.removeAttribute("src");
+      modelPhotoPlaceholder.removeAttribute("hidden");
+    }
+  }
 
   SERVICES.forEach(([key, label]) => {
     const values = item[key] || NA;

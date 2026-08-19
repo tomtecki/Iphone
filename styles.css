@@ -607,6 +607,34 @@ h3 {
   font-size: clamp(1.6rem, 3vw, 2.4rem);
 }
 
+.price-panel-model {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.model-photo {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  background: var(--mint-soft);
+  border: 1px solid #98d7c2;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.model-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.model-photo-placeholder {
+  font-size: 1.8rem;
+}
+
 .price-results {
   display: grid;
   gap: 0.9rem;
