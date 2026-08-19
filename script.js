@@ -503,6 +503,7 @@ const POPULAR_MODELS = ["iPhone 17 Pro Max", "iPhone 17", "iPhone 16", "iPhone 1
 
 const modelList = document.querySelector("[data-model-list]");
 const modelTree = document.querySelector("[data-model-tree]");
+const treeStepLabel = document.querySelector("[data-tree-step]");
 const modelPicker = document.querySelector("[data-model-picker]");
 const popularModelsList = document.querySelector("[data-popular-models]");
 const modelSearch = document.querySelector("#model-search");
@@ -536,6 +537,10 @@ function renderModelTree() {
   modelTree.innerHTML = "";
 
   if (!openGeneration) {
+    if (treeStepLabel) {
+      treeStepLabel.textContent = "Krok 1: wybierz generację";
+    }
+
     const generations = [];
     PRICE_DATA.forEach((item) => {
       if (!generations.includes(item.generation)) {
@@ -560,6 +565,10 @@ function renderModelTree() {
 
     modelTree.append(wrap);
     return;
+  }
+
+  if (treeStepLabel) {
+    treeStepLabel.textContent = `Krok 2: wybierz wariant (${openGeneration})`;
   }
 
   const backButton = document.createElement("button");

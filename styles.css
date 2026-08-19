@@ -504,17 +504,28 @@ h3 {
   overscroll-behavior: contain;
 }
 
-.model-tree,
+.model-tree-block,
 .model-list {
   display: none;
 }
 
-.model-picker:not(.is-searching) .model-tree {
+.model-picker:not(.is-searching) .model-tree-block {
   display: block;
 }
 
 .model-picker.is-searching .model-list {
   display: grid;
+}
+
+.model-tree-heading {
+  margin: 0 0 0.2rem;
+}
+
+.model-tree-step {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 750;
 }
 
 .generation-list,
