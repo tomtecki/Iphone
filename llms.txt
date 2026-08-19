@@ -1,0 +1,13 @@
+# MojIphone
+
+Mobilny serwis iPhone i Apple Watch w Rybniku. Strona opisuje naprawy ekranów, baterii, złączy ładowania, aparatów, mikrofonów oraz diagnostykę telefonów po zalaniu.
+
+Najważniejsze informacje:
+- Naprawa zaczyna się po akceptacji wyceny.
+- Klient może zadzwonić bezpośrednio z telefonu, klikając numer 570 222 345.
+- Najczęstsze naprawy mogą być wykonane tego samego dnia, jeśli część jest dostępna.
+- Strona jest przygotowana pod kolejny etap: rezerwację terminów i bota odpowiadającego na pytania klientów.
+- Przed publikacją należy potwierdzić adres, godziny pracy, e-mail i pełny obszar dojazdu.
+
+Główna strona: https://mojiphone.pl/
+Kontakt telefoniczny: 570 222 345
