@@ -1,6 +1,6 @@
 # Progress — strona MojIphone
 
-Ostatnia aktualizacja: 2026-08-19
+Ostatnia aktualizacja: 2026-08-20
 
 ## ✅ Zrobione
 
@@ -9,7 +9,7 @@ Ostatnia aktualizacja: 2026-08-19
 - Cennik interaktywny w `script.js` — dane przeniesione z `mojiphone.pl` dla modeli iPhone 4s–15 Pro Max.
 - Dodane najnowsze modele (17 Pro Max, 17 Pro, Air, 17, 17e, 16 Pro Max, 16 Pro, 16 Plus, 16, 16e) — **bez cen**, pokazują "Na zapytanie" do czasu przesłania cennika przez klienta.
 - Skróty "Popularne modele" nad pełnym wyborem.
-- Dwupoziomowe drzewo wyboru modelu: generacja (np. "iPhone 16") → wariant (Pro / Plus / e / standardowy), z opcją wyszukiwania tekstowego jako alternatywy.
+- Wybór dokładnego modelu przez dwa rozwijane selecty: **Generacja → Wariant** (zastąpiły wcześniejszą siatkę przycisków — po opinii UX, że była za bardzo "hałaśliwa" i łatwo się w niej zgubić). Wyszukiwarka tekstowa domyślnie zwinięta pod przyciskiem "Szukaj po nazwie modelu", żeby nie zajmowała miejsca na starcie.
 - Mechanizm `?model=` w URL — automatyczne otwarcie cennika z wybranym modelem (fundament pod przyszłe kampanie Google Ads per model).
 - Sekcja opinii z 5 prawdziwymi recenzjami z Google (dostarczone przez klienta jako zrzuty ekranu) + plakietka 4,9/5 (164 opinie) w hero.
 - Nowa podstrona SEO `sprawdz-model-iphone.html` — poradnik "jak sprawdzić model iPhone" z linkami do cennika per model, mini-FAQ w schema.
