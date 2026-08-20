@@ -109,7 +109,7 @@ Klient ma własny serwer i woli hostować analitykę samodzielnie. Zespół omó
 
 **Status:** klient przygotowuje instalację na własnym serwerze (przy pomocy własnego asystenta/"codexa"). Instrukcja instalacji (Docker Compose, reverse proxy, pierwsze logowanie) przekazana klientowi poza tym repo.
 
-**Blokada do wdrożenia w kodzie strony:** potrzebny wygenerowany tag `<script defer src="https://.../script.js" data-website-id="...">` z panelu Umami po stronie klienta — dopiero wtedy można wpiąć go do `index.html`/`sprawdz-model-iphone.html`.
+**Status: ✅ wdrożone (2026-08-20).** Skrypt Umami wpięty w `<head>` w `index.html` i `sprawdz-model-iphone.html` (website ID `72b84c69-a97a-42fa-a1d1-c10e87437836`, instancja `analytics.mojiphone.pl`). Statystyki dostępne w panelu Umami klienta.
 
 **Nieaktualne po tej decyzji:** krok "banner zgody na cookie" (punkt 1 rekomendacji GTM/GA4 wyżej) — Umami w domyślnej konfiguracji nie wymaga zgody, więc banner nie jest potrzebny, chyba że klient później doda inne narzędzia korzystające z cookies.
 
