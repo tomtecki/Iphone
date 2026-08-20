@@ -840,9 +840,58 @@ const BOT_PART_GROUPS = [
   { keywords: ["antena", "sim"], keys: ["sim"] }
 ];
 
+function escapeBotRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function findBotModelMatch(message) {
   const normalized = message.toLowerCase();
   return PRICE_DATA.find((item) => normalized.includes(item.model.toLowerCase())) || null;
+}
+
+// Rozpoznaje wariant modelu po samym numerze/nazwie, bez słowa "iPhone"
+// (np. "13 pro max", "16e", "se 2020") - klient rzadko pisze pełne zdania.
+const BARE_MODEL_MAP = PRICE_DATA
+  .map((item) => ({ item, bare: item.model.replace(/^iPhone\s*/i, "").trim().toLowerCase() }))
+  .filter(({ bare }) => bare.length > 0)
+  .sort((a, b) => b.bare.length - a.bare.length);
+
+function findBotBareModelMatch(message) {
+  const normalized = message.toLowerCase();
+  const match = BARE_MODEL_MAP.find(({ bare }) => new RegExp(`\\b${escapeBotRegExp(bare)}\\b`, "i").test(normalized));
+  return match ? match.item : null;
+}
+
+// Rozpoznaje samą generację (np. "13" bez wariantu) - gdy generacja ma więcej
+// niż jeden wariant cenowy, bot musi dopytać zamiast zgadywać.
+const GENERATION_BARE_MAP = GENERATIONS
+  .filter((generation) => !generation.includes("/"))
+  .map((generation) => ({ generation, bare: generation.replace(/^iPhone\s*/i, "").trim().toLowerCase() }))
+  .filter(({ bare }) => bare.length > 0)
+  .sort((a, b) => b.bare.length - a.bare.length);
+
+function findBotGenerationMatch(message) {
+  const normalized = message.toLowerCase();
+  const match = GENERATION_BARE_MAP.find(({ bare }) => new RegExp(`\\b${escapeBotRegExp(bare)}\\b`, "i").test(normalized));
+  return match ? match.generation : null;
+}
+
+function resolveBotModel(message) {
+  const exact = findBotModelMatch(message) || findBotBareModelMatch(message);
+  if (exact) {
+    return { item: exact };
+  }
+
+  const generation = findBotGenerationMatch(message);
+  if (generation) {
+    const variants = PRICE_DATA.filter((entry) => entry.generation === generation);
+    if (variants.length === 1) {
+      return { item: variants[0] };
+    }
+    return { ambiguousGeneration: generation, variants };
+  }
+
+  return null;
 }
 
 function findBotPartMatch(message) {
@@ -875,43 +924,59 @@ function formatGeneralAnswer(item) {
 // żeby nie pytać o niego ponownie przy kolejnych pytaniach o inne usterki.
 let botContextModel = null;
 
+function answerForResolvedModel(item, partMatch) {
+  return {
+    text: partMatch ? formatPartAnswer(item, partMatch) : formatGeneralAnswer(item),
+    action: () => selectModel(item)
+  };
+}
+
 function getBotAnswer(message) {
-  const explicitModel = findBotModelMatch(message);
+  const resolved = resolveBotModel(message);
+  const partMatch = findBotPartMatch(message);
+
+  // Sama generacja bez wariantu (np. "13") ma kilka różnych cen - dopytaj,
+  // zamiast zgadywać, zanim cokolwiek policzysz.
+  if (resolved && resolved.ambiguousGeneration) {
+    return {
+      text: `${resolved.ambiguousGeneration} ma kilka wariantów z różną ceną. Który dokładnie masz?`,
+      options: resolved.variants.map((variant) => ({
+        label: variant.variantLabel,
+        onClick: () => {
+          botContextModel = variant;
+          const followUp = answerForResolvedModel(variant, partMatch);
+          addChatMessage(followUp.text, "bot", { action: followUp.action });
+        }
+      }))
+    };
+  }
+
+  const explicitModel = resolved ? resolved.item : null;
   if (explicitModel) {
     botContextModel = explicitModel;
   }
   const contextModel = explicitModel || botContextModel;
-  const partMatch = findBotPartMatch(message);
 
   if (partMatch) {
     if (!contextModel) {
       return {
-        text: "Jaki masz model iPhone? Podaj nazwę (np. „iPhone 13”), a sprawdzę dokładną cenę tej naprawy."
+        text: "Jaki masz model iPhone? Podaj nazwę albo numer (np. „13 Pro”), a sprawdzę dokładną cenę tej naprawy."
       };
     }
-    return {
-      text: formatPartAnswer(contextModel, partMatch),
-      action: () => selectModel(contextModel)
-    };
+    return answerForResolvedModel(contextModel, partMatch);
   }
 
   if (explicitModel) {
-    return {
-      text: formatGeneralAnswer(explicitModel),
-      action: () => selectModel(explicitModel)
-    };
+    return answerForResolvedModel(explicitModel, null);
   }
 
   const containsPriceKeyword = /cena|koszt|ile kosztuje|wycena/i.test(message);
   if (containsPriceKeyword) {
     if (contextModel) {
-      return {
-        text: formatGeneralAnswer(contextModel),
-        action: () => selectModel(contextModel)
-      };
+      return answerForResolvedModel(contextModel, null);
     }
     return {
-      text: "Cena zależy od modelu i rodzaju naprawy. Napisz konkretny model (np. „iPhone 13 cena”), a pokażę orientacyjną wycenę, albo przejdź do sekcji cennika na stronie.",
+      text: "Cena zależy od modelu i rodzaju naprawy. Napisz model (np. „13 Pro cena” albo „iPhone 13 cena”), a pokażę orientacyjną wycenę, albo przejdź do sekcji cennika na stronie.",
       link: { href: "#cennik", label: "Otwórz cennik" }
     };
   }
@@ -936,7 +1001,7 @@ const chatQuick = document.querySelector("[data-chat-quick]");
 const chatForm = document.querySelector("[data-chat-form]");
 const chatInput = document.querySelector("#chat-input");
 
-function addChatMessage(text, from, link, action) {
+function addChatMessage(text, from, extra = {}) {
   if (!chatLog) {
     return;
   }
@@ -949,29 +1014,41 @@ function addChatMessage(text, from, link, action) {
   bubble.textContent = text;
   wrap.append(bubble);
 
-  if (link) {
+  if (extra.link) {
     const anchor = document.createElement("a");
     anchor.className = "chat-bubble-link";
-    anchor.href = link.href;
-    anchor.textContent = link.label;
-    if (link.href.startsWith("http")) {
+    anchor.href = extra.link.href;
+    anchor.textContent = extra.link.label;
+    if (extra.link.href.startsWith("http")) {
       anchor.target = "_blank";
       anchor.rel = "noopener";
     }
     wrap.append(anchor);
-  } else if (action) {
+  } else if (extra.action) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "chat-bubble-link";
     button.textContent = "Pokaż w cenniku";
     button.addEventListener("click", () => {
-      action();
+      extra.action();
       const pricingSection = document.querySelector("#cennik");
       if (pricingSection) {
         pricingSection.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     });
     wrap.append(button);
+  } else if (extra.options) {
+    const optionsWrap = document.createElement("div");
+    optionsWrap.className = "chat-bubble-options";
+    extra.options.forEach((option) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "chat-bubble-link chat-bubble-option";
+      button.textContent = option.label;
+      button.addEventListener("click", () => option.onClick());
+      optionsWrap.append(button);
+    });
+    wrap.append(optionsWrap);
   }
 
   chatLog.append(wrap);
@@ -986,7 +1063,7 @@ function handleBotQuestion(question) {
 
   addChatMessage(trimmed, "user");
   const response = getBotAnswer(trimmed);
-  addChatMessage(response.text, "bot", response.link, response.action);
+  addChatMessage(response.text, "bot", response);
 }
 
 function renderChatQuickQuestions() {
@@ -1013,7 +1090,7 @@ if (chatWidget && chatToggle && chatPanel) {
     chatPanel.removeAttribute("hidden");
     chatToggle.setAttribute("aria-expanded", "true");
     if (!chatInitialized) {
-      addChatMessage("Cześć! Jestem asystentem MojIphone. Zapytaj o cenę, model iPhone albo naprawę — odpowiadam na podstawie treści tej strony.", "bot");
+      addChatMessage("Cześć! Jestem asystentem MojIphone. Możesz pisać krótko, np. „13 wymiana ekranu” — odpowiadam na podstawie treści tej strony.", "bot");
       renderChatQuickQuestions();
       chatInitialized = true;
     }

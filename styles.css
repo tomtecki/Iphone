@@ -1191,6 +1191,28 @@ body:not(:has(.chat-widget)) .contact-dock {
   color: var(--white);
 }
 
+.chat-bubble-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chat-bubble-option {
+  padding: 0.35rem 0.6rem;
+  color: var(--blue-deep);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.chat-bubble-option:hover,
+.chat-bubble-option:focus-visible {
+  background: var(--mint-soft);
+  border-color: #98d7c2;
+}
+
 .chat-quick {
   display: flex;
   flex-wrap: wrap;
