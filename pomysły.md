@@ -8,7 +8,7 @@ Skład zespołu: SEO/GEO/AEO, Behawiorysta/CRO, Architekt, UX, Marketingowiec, P
 
 ## 1. Agent/bot odpowiadający na pytania klientów i zbierający leady
 
-**Status: do przedyskutowania / niezaimplementowane.**
+**Status: ✅ Faza 1 wdrożona (branch `bot/faza1-qa-regulowy`) — bot regułowy Q&A. Faza 2 (zbieranie leadów + integracja z systemem obsługującym naprawy) zaplanowana, niezaimplementowana.**
 
 ### Dyskusja zespołu
 
@@ -34,9 +34,9 @@ Koszt i ryzyko rosną mocno między dwoma wariantami:
 
 ### Rekomendacja zespołu (zaktualizowana)
 
-✅ **Faza 1 (teraz, niski koszt):** formularz-kwalifikator z regułami, wpięty w istniejący formularz kontaktowy — klika objawy, dostaje wstępną diagnozę (nie instrukcję DIY), dane trafiają do backendu (i tak trzeba go podłączyć).
+✅ **Faza 1 — wdrożona (2026-08-20):** widżet czatu w prawym dolnym rogu (`index.html`), dopasowanie słów kluczowych do gotowych odpowiedzi z treści już opublikowanej na stronie (FAQ, godziny, dojazd, zalanie, faktura, gwarancja) + rozpoznawanie nazwy modelu w pytaniu i odpowiedź z ceną ekranu/baterii z `PRICE_DATA`. Zero kosztów bieżących, zero ryzyka halucynacji (brak LLM). Jawny disclaimer w UI, że to automatyczna odpowiedź na podstawie treści strony. Szybkie pytania (chipy) dla najczęstszych tematów.
 
-⏸ **Faza 2 (odłożona, warunkowa):** bot LLM — dopiero po zebraniu danych z Fazy 1 potwierdzających realny wolumen ruchu, który by go uzasadnił.
+➡️ **Faza 2 (kolejny krok, zaplanowany przez klienta):** rozszerzenie bota o zbieranie leadów (imię/telefon/model/usterka) i wysyłkę do systemu obsługującego naprawy (CRM). Wymaga: (a) wyboru/potwierdzenia systemu docelowego (jaki CRM/narzędzie klient używa albo planuje), (b) tego samego backendu, który i tak jest potrzebny do podłączenia głównego formularza kontaktowego — sensowne zrobić oba na raz, jednym mechanizmem wysyłki.
 
 ---
 
