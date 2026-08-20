@@ -537,6 +537,28 @@
         <a href="tel:+48570222345" data-track="phone_footer" aria-label="Zadzwoń do MojIphone, numer 570 222 345">570 222 345</a>
       </div>
     </footer>
+
+    <div class="chat-widget" data-chat-widget>
+      <button type="button" class="chat-toggle" data-chat-toggle aria-expanded="false" aria-controls="chat-panel" data-track="chat_open">
+        <span aria-hidden="true">💬</span>
+        <span class="sr-only">Otwórz asystenta pytań</span>
+      </button>
+      <div class="chat-panel" id="chat-panel" data-chat-panel hidden>
+        <div class="chat-header">
+          <strong>Asystent MojIphone</strong>
+          <button type="button" class="chat-close" data-chat-close aria-label="Zamknij asystenta">✕</button>
+        </div>
+        <div class="chat-log" data-chat-log aria-live="polite"></div>
+        <div class="chat-quick" data-chat-quick></div>
+        <form class="chat-input-row" data-chat-form>
+          <label class="sr-only" for="chat-input">Zadaj pytanie</label>
+          <input id="chat-input" type="text" placeholder="Napisz pytanie, np. iPhone 13 cena" autocomplete="off">
+          <button type="submit" class="button button-primary">Wyślij</button>
+        </form>
+        <p class="chat-disclaimer">Asystent odpowiada automatycznie na podstawie treści tej strony. W pilnych sprawach zadzwoń: <a href="tel:+48570222345" data-track="phone_chat">570 222 345</a>.</p>
+      </div>
+    </div>
+
     <script src="script.js" defer></script>
   </body>
 </html>

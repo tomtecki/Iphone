@@ -762,6 +762,182 @@ if (contactForm && formNote) {
   });
 }
 
+// Faza 1 asystenta: bot regułowy, bez LLM i bez kosztów API - patrz pomysły.md.
+// Zbieranie leadów i wysyłka do systemu obsługującego naprawy to Faza 2, jeszcze niezaimplementowana.
+const BOT_QUICK_QUESTIONS = [
+  "Ile kosztuje naprawa?",
+  "Jak długo trwa naprawa?",
+  "Dojeżdżacie do mojego miasta?",
+  "Jakie są godziny pracy?",
+  "Naprawiacie po zalaniu?"
+];
+
+const BOT_RULES = [
+  {
+    keywords: ["ile trwa", "jak długo", "czas naprawy", "kiedy będzie gotowe"],
+    answer: "Najczęściej naprawa jest możliwa tego samego dnia, jeśli część jest dostępna. Przy rzadszych modelach termin potwierdzamy telefonicznie."
+  },
+  {
+    keywords: ["dojazd", "dojeżdżacie", "obszar", "twoje miasto", "moje miasto", "przyjedziecie"],
+    answer: "Dojazd na terenie Rybnika jest wliczony w cenę. Obsługujemy też Żory, Wodzisław Śląski, Jastrzębie-Zdrój, Gliwice i Katowice — koszt dojazdu dla tych miast potwierdzamy telefonicznie."
+  },
+  {
+    keywords: ["godziny", "kiedy otwarte", "czynne", "pracujecie", "godzin pracy"],
+    answer: "Pracujemy pon.–pt. 9:00–18:00 oraz w soboty 10:00–14:00."
+  },
+  {
+    keywords: ["w domu", "u mnie", "gdzie naprawa", "gdzie odbywa"],
+    answer: "Nie trzeba nikogo wpuszczać do domu ani biura — naprawa odbywa się w specjalnie przystosowanym samochodzie serwisowym pod wskazanym adresem."
+  },
+  {
+    keywords: ["zalanie", "zalany", "woda", "wpadł do wody", "wpadł w wodę"],
+    answer: "Nie podłączaj zalanego telefonu do ładowarki. Wykonujemy diagnostykę po zalaniu — im szybciej trafi do nas telefon, tym większa szansa na ograniczenie szkód."
+  },
+  {
+    keywords: ["nie znam modelu", "nie wiem jaki mam", "jaki to model"],
+    answer: "Nie musisz znać dokładnego modelu z góry — sprawdzimy go na miejscu, albo skorzystaj z naszego poradnika: sprawdz-model-iphone.html"
+  },
+  {
+    keywords: ["dane", "kasujecie dane", "utracę dane", "kopia zapasowa"],
+    answer: "Standardowe naprawy mechaniczne nie wymagają kasowania danych. Mimo to warto mieć aktualną kopię zapasową, zwłaszcza przy zalaniu lub problemach z płytą."
+  },
+  {
+    keywords: ["faktura", "dokument sprzedaży", "rachunek"],
+    answer: "Tak, po naprawie możemy wystawić dokument sprzedaży. Dane do faktury najlepiej podać przy przyjęciu telefonu."
+  },
+  {
+    keywords: ["gwarancj"],
+    answer: "Na wykonane naprawy obowiązuje gwarancja — dokładne warunki potwierdzimy przy wycenie telefonicznej."
+  },
+  {
+    keywords: ["telefon", "numer", "kontakt", "zadzwonić"],
+    answer: "Zadzwoń: 570 222 345 — to najszybsza droga do wyceny i umówienia terminu."
+  }
+];
+
+function findBotModelMatch(message) {
+  const normalized = message.toLowerCase();
+  return PRICE_DATA.find((item) => normalized.includes(item.model.toLowerCase())) || null;
+}
+
+function findBotRuleMatch(message) {
+  const normalized = message.toLowerCase();
+  return BOT_RULES.find((rule) => rule.keywords.some((keyword) => normalized.includes(keyword))) || null;
+}
+
+function getBotAnswer(message) {
+  const modelMatch = findBotModelMatch(message);
+  if (modelMatch) {
+    const screen = modelMatch.screen ? modelMatch.screen[1] : "Na zapytanie";
+    const battery = modelMatch.battery ? modelMatch.battery[1] : "Na zapytanie";
+    return `Dla ${modelMatch.model}: wymiana ekranu (oryginał) ${screen}, wymiana baterii (oryginał) ${battery}. Pełny cennik i warianty zamiennika zobaczysz w sekcji cennika wyżej na stronie.`;
+  }
+
+  const containsPriceKeyword = /cena|koszt|ile kosztuje|wycena/i.test(message);
+  if (containsPriceKeyword) {
+    return "Cena zależy od modelu i rodzaju naprawy. Napisz konkretny model (np. „iPhone 13 cena”), a pokażę orientacyjną wycenę, albo przejdź do sekcji cennika na stronie.";
+  }
+
+  const ruleMatch = findBotRuleMatch(message);
+  if (ruleMatch) {
+    return ruleMatch.answer;
+  }
+
+  return "Nie mam gotowej odpowiedzi na to pytanie. Zadzwoń: 570 222 345 albo napisz przez formularz kontaktowy na dole strony — odpowiemy najszybciej, jak to możliwe.";
+}
+
+const chatWidget = document.querySelector("[data-chat-widget]");
+const chatToggle = document.querySelector("[data-chat-toggle]");
+const chatPanel = document.querySelector("[data-chat-panel]");
+const chatClose = document.querySelector("[data-chat-close]");
+const chatLog = document.querySelector("[data-chat-log]");
+const chatQuick = document.querySelector("[data-chat-quick]");
+const chatForm = document.querySelector("[data-chat-form]");
+const chatInput = document.querySelector("#chat-input");
+
+function addChatMessage(text, from) {
+  if (!chatLog) {
+    return;
+  }
+
+  const bubble = document.createElement("p");
+  bubble.className = `chat-bubble chat-bubble-${from}`;
+  bubble.textContent = text;
+  chatLog.append(bubble);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function handleBotQuestion(question) {
+  const trimmed = question.trim();
+  if (!trimmed) {
+    return;
+  }
+
+  addChatMessage(trimmed, "user");
+  addChatMessage(getBotAnswer(trimmed), "bot");
+}
+
+function renderChatQuickQuestions() {
+  if (!chatQuick) {
+    return;
+  }
+
+  chatQuick.innerHTML = "";
+
+  BOT_QUICK_QUESTIONS.forEach((question) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chat-quick-button";
+    button.textContent = question;
+    button.addEventListener("click", () => handleBotQuestion(question));
+    chatQuick.append(button);
+  });
+}
+
+if (chatWidget && chatToggle && chatPanel) {
+  let chatInitialized = false;
+
+  const openChat = () => {
+    chatPanel.removeAttribute("hidden");
+    chatToggle.setAttribute("aria-expanded", "true");
+    if (!chatInitialized) {
+      addChatMessage("Cześć! Jestem asystentem MojIphone. Zapytaj o cenę, model iPhone albo naprawę — odpowiadam na podstawie treści tej strony.", "bot");
+      renderChatQuickQuestions();
+      chatInitialized = true;
+    }
+    if (chatInput) {
+      chatInput.focus();
+    }
+  };
+
+  const closeChat = () => {
+    chatPanel.setAttribute("hidden", "");
+    chatToggle.setAttribute("aria-expanded", "false");
+  };
+
+  chatToggle.addEventListener("click", () => {
+    const isOpen = !chatPanel.hasAttribute("hidden");
+    if (isOpen) {
+      closeChat();
+    } else {
+      openChat();
+    }
+  });
+
+  if (chatClose) {
+    chatClose.addEventListener("click", closeChat);
+  }
+
+  if (chatForm && chatInput) {
+    chatForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      handleBotQuestion(chatInput.value);
+      chatInput.value = "";
+      chatInput.focus();
+    });
+  }
+}
+
 window.dataLayer = window.dataLayer || [];
 
 document.addEventListener("click", (event) => {
