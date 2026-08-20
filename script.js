@@ -762,6 +762,494 @@ if (contactForm && formNote) {
   });
 }
 
+// Faza 1 asystenta: bot regułowy, bez LLM i bez kosztów API - patrz pomysły.md.
+// Zbieranie leadów i wysyłka do systemu obsługującego naprawy to Faza 2, jeszcze niezaimplementowana.
+
+// Klienci piszą bez polskich znaków ("nie dziala", "laduje") - normalizacja
+// sprawia, że dopasowanie działa niezależnie od tego, czy diakrytyki są wpisane.
+const BOT_DIACRITICS_MAP = { ą: "a", ć: "c", ę: "e", ł: "l", ń: "n", ó: "o", ś: "s", ź: "z", ż: "z" };
+
+function normalizeBotText(text) {
+  return text
+    .toLowerCase()
+    .split("")
+    .map((char) => BOT_DIACRITICS_MAP[char] || char)
+    .join("");
+}
+
+const BOT_RULES = [
+  {
+    keywords: ["ile trwa", "jak długo", "czas naprawy", "kiedy będzie gotowe", "ile czasu", "trwa naprawa", "trwa wymiana"],
+    answer: "Najczęściej naprawa jest możliwa tego samego dnia, jeśli część jest dostępna. Przy rzadszych modelach termin potwierdzamy telefonicznie.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
+  },
+  {
+    keywords: ["dojazd", "dojeżdżacie", "obszar", "twoje miasto", "moje miasto", "przyjedziecie", "jakich miast", "do jakich miast", "docie", "dojechać", "dojechac", "obsługujecie"],
+    answer: "Dojazd na terenie Rybnika jest wliczony w cenę. Obsługujemy też Żory, Wodzisław Śląski, Jastrzębie-Zdrój, Gliwice i Katowice — koszt dojazdu dla tych miast potwierdzamy telefonicznie.",
+    link: { href: "#obszar", label: "Zobacz obsługiwane lokalizacje" }
+  },
+  {
+    keywords: ["godziny", "kiedy otwarte", "czynne", "pracujecie", "godzin pracy"],
+    answer: "Pracujemy pon.–pt. 9:00–18:00 oraz w soboty 10:00–14:00.",
+    link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
+  },
+  {
+    keywords: ["w domu", "u mnie", "gdzie naprawa", "gdzie odbywa"],
+    answer: "Nie trzeba nikogo wpuszczać do domu ani biura — naprawa odbywa się w specjalnie przystosowanym samochodzie serwisowym pod wskazanym adresem.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
+  },
+  {
+    keywords: ["zalanie", "zalany", "woda", "wpadł do wody", "wpadł w wodę"],
+    answer: "Nie podłączaj zalanego telefonu do ładowarki. Wykonujemy diagnostykę po zalaniu — im szybciej trafi do nas telefon, tym większa szansa na ograniczenie szkód.",
+    link: { href: "#naprawy", label: "Zobacz usługę diagnostyki po zalaniu" }
+  },
+  {
+    keywords: ["nie znam modelu", "nie wiem jaki mam", "jaki to model"],
+    answer: "Nie musisz znać dokładnego modelu z góry — sprawdzimy go na miejscu, albo skorzystaj z naszego poradnika.",
+    link: { href: "sprawdz-model-iphone.html", label: "Otwórz poradnik: jak sprawdzić model" }
+  },
+  {
+    keywords: ["dane", "kasujecie dane", "utracę dane", "kopia zapasowa"],
+    answer: "Standardowe naprawy mechaniczne nie wymagają kasowania danych. Mimo to warto mieć aktualną kopię zapasową, zwłaszcza przy zalaniu lub problemach z płytą.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
+  },
+  {
+    keywords: ["faktura", "dokument sprzedaży", "rachunek"],
+    answer: "Tak, po naprawie możemy wystawić dokument sprzedaży. Dane do faktury najlepiej podać przy przyjęciu telefonu.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
+  },
+  {
+    keywords: ["gwarancj"],
+    answer: "Na wykonane naprawy obowiązuje gwarancja — dokładne warunki potwierdzimy przy wycenie telefonicznej.",
+    link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
+  },
+  {
+    keywords: ["telefon", "numer", "kontakt", "zadzwonić"],
+    answer: "Zadzwoń: 570 222 345 — to najszybsza droga do wyceny i umówienia terminu.",
+    link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
+  },
+  {
+    keywords: ["przygotować", "co zabrać", "kod odblokowania", "backup przed", "przed wizytą", "przed naprawą co"],
+    answer: "Jeśli to możliwe, wykonaj kopię zapasową, wyłącz blokady ograniczające testy i zabierz kod odblokowania albo zostań na miejscu podczas testowania funkcji.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
+  },
+  {
+    keywords: ["co naprawiacie", "jakie naprawy", "jakie usługi", "co robicie", "zakres napraw", "czym się zajmujecie"],
+    answer: "Naprawiamy: ekran/szybkę, baterię, złącze ładowania, aparat/głośnik/mikrofon, usterki po zalaniu i po upadku.",
+    link: { href: "#naprawy", label: "Zobacz wszystkie usługi" }
+  },
+  {
+    keywords: ["jak wygląda wizyta", "jak to działa", "jak zamówić", "jak umówić", "proces naprawy", "jak się umówić", "jak zgłosić"],
+    answer: "Trzy kroki: opisujesz objaw (telefon lub formularz), technik ocenia usterkę i podaje wycenę, naprawa zaczyna się po Twojej zgodzie.",
+    link: { href: "#proces", label: "Zobacz pełny proces" }
+  },
+  {
+    keywords: ["upadek", "upadł", "spadł", "wypadł z ręki", "stłuczony telefon"],
+    answer: "Po upadku sprawdzamy ekran, ramkę, aparat, ładowanie, anteny i inne elementy, które mogły ucierpieć nawet wtedy, gdy telefon wygląda dobrze.",
+    link: { href: "#naprawy", label: "Zobacz usługę" }
+  },
+  {
+    keywords: ["opinie", "recenzje", "referencje", "czy macie opinie"],
+    answer: "4,9/5 na podstawie 164 opinii Google — prawdziwe recenzje klientów są na tej stronie.",
+    link: { href: "#opinie", label: "Zobacz opinie" }
+  },
+  {
+    keywords: ["formularz", "zgłoszenie wyślij", "napisać zamiast dzwonić"],
+    answer: "Formularz kontaktowy jest na dole strony — podaj model, objawy i preferowany kontakt.",
+    link: { href: "#formularz", label: "Przejdź do formularza" }
+  }
+];
+
+// Mapa usterek na klucze z PRICE_DATA/SERVICES - żeby bot odpowiadał dokładnie
+// na zapytaną część, a nie zawsze podsumowaniem ekran+bateria. Oprócz nazw usług
+// (np. "ekran") rozpoznaje też opisy objawów, jak realnie pisze klient
+// (np. "pękł mi ekran", "nie ładuje się", "słabo trzyma baterię").
+const BOT_PART_GROUPS = [
+  {
+    keywords: ["aparat", "kamer", "rozmazane zdjęcia", "nie robi zdjęć", "facetime", "nie widzę obrazu z aparatu"],
+    keys: ["rearCamera", "frontCamera"]
+  },
+  {
+    keywords: ["ekran", "wyświetlacz", "szybk", "display", "matryc", "pękł", "pęknięty", "peknieta", "rozbity", "miga", "plamy", "nie reaguje na dotyk", "czarny ekran", "nie widać obrazu"],
+    keys: ["screen"]
+  },
+  {
+    keywords: ["bateri", "akumulator", "szybko się rozładowuje", "wyłącza się sam", "słabo trzyma", "kondycja baterii", "szybko traci baterię"],
+    keys: ["battery"]
+  },
+  {
+    keywords: ["ładowani", "gniazdo", "port ładowania", "wtyczk", "nie ładuje się", "wolno się ładuje", "przerywane ładowanie", "kabel nie działa"],
+    keys: ["charging"]
+  },
+  {
+    keywords: ["głośnik", "charczy", "cichy dźwięk", "rozmówcy nie słyszą", "słabo słychać", "nie słyszę rozmówcy"],
+    keys: ["speakerTop", "speakerBottom"]
+  },
+  {
+    keywords: ["mikrofon", "mnie nie słyszą", "nie słychać mnie", "rozmówca mnie nie słyszy"],
+    keys: ["mic"]
+  },
+  {
+    keywords: ["obudow", "korpus", "szkło tylne", "tylna szyb", "tył telefonu", "pęknięta obudowa", "tył się rozleciał"],
+    keys: ["housing", "backGlass"]
+  },
+  {
+    keywords: ["przycisk", "guzik", "home", "nie działa przycisk", "nie reaguje przycisk"],
+    keys: ["buttons", "home"]
+  },
+  {
+    keywords: ["czujnik zbliżeniowy", "czujnik"],
+    keys: ["sensor"]
+  },
+  {
+    keywords: ["antena", "sim", "nie łapie zasięgu", "brak zasięgu"],
+    keys: ["sim"]
+  }
+];
+
+function escapeBotRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function findBotModelMatch(message) {
+  const normalized = normalizeBotText(message);
+  return PRICE_DATA.find((item) => normalized.includes(normalizeBotText(item.model))) || null;
+}
+
+// Rozpoznaje wariant modelu po samym numerze/nazwie, bez słowa "iPhone"
+// (np. "13 pro max", "16e", "se 2020") - klient rzadko pisze pełne zdania.
+const BARE_MODEL_MAP = PRICE_DATA
+  .map((item) => ({ item, bare: normalizeBotText(item.model.replace(/^iPhone\s*/i, "").trim()) }))
+  .filter(({ bare }) => bare.length > 0)
+  .sort((a, b) => b.bare.length - a.bare.length);
+
+function findBotBareModelMatch(message) {
+  const normalized = normalizeBotText(message);
+  const match = BARE_MODEL_MAP.find(({ bare }) => new RegExp(`\\b${escapeBotRegExp(bare)}\\b`, "i").test(normalized));
+  return match ? match.item : null;
+}
+
+// Rozpoznaje samą generację (np. "13" bez wariantu) - gdy generacja ma więcej
+// niż jeden wariant cenowy, bot musi dopytać zamiast zgadywać.
+const GENERATION_BARE_MAP = GENERATIONS
+  .filter((generation) => !generation.includes("/"))
+  .map((generation) => ({ generation, bare: normalizeBotText(generation.replace(/^iPhone\s*/i, "").trim()) }))
+  .filter(({ bare }) => bare.length > 0)
+  .sort((a, b) => b.bare.length - a.bare.length);
+
+function findBotGenerationMatch(message) {
+  const normalized = normalizeBotText(message);
+  const match = GENERATION_BARE_MAP.find(({ bare }) => new RegExp(`\\b${escapeBotRegExp(bare)}\\b`, "i").test(normalized));
+  return match ? match.generation : null;
+}
+
+function resolveBotModel(message) {
+  const exact = findBotModelMatch(message) || findBotBareModelMatch(message);
+  if (exact) {
+    return { item: exact };
+  }
+
+  const generation = findBotGenerationMatch(message);
+  if (generation) {
+    const variants = PRICE_DATA.filter((entry) => entry.generation === generation);
+    if (variants.length === 1) {
+      return { item: variants[0] };
+    }
+    return { ambiguousGeneration: generation, variants };
+  }
+
+  return null;
+}
+
+function findBotPartMatch(message) {
+  const normalized = normalizeBotText(message);
+  return BOT_PART_GROUPS.find((group) => group.keywords.some((keyword) => normalized.includes(normalizeBotText(keyword)))) || null;
+}
+
+function findBotRuleMatch(message) {
+  const normalized = normalizeBotText(message);
+  return BOT_RULES.find((rule) => rule.keywords.some((keyword) => normalized.includes(normalizeBotText(keyword)))) || null;
+}
+
+function formatPartAnswer(item, partGroup) {
+  const lines = partGroup.keys.map((key) => {
+    const serviceEntry = SERVICES.find(([entryKey]) => entryKey === key);
+    const label = serviceEntry ? serviceEntry[1] : key;
+    const values = item[key] || NA;
+    return `${label} — zamiennik ${values[0]}, oryginał ${values[1]}, czas ${values[2]}`;
+  });
+  return `Dla ${item.model}: ${lines.join("; ")}.`;
+}
+
+function formatGeneralAnswer(item) {
+  const screen = item.screen ? item.screen[1] : "Na zapytanie";
+  const battery = item.battery ? item.battery[1] : "Na zapytanie";
+  return `Dla ${item.model}: wymiana ekranu (oryginał) ${screen}, wymiana baterii (oryginał) ${battery}. Pełny cennik i pozostałe naprawy zobaczysz w sekcji cennika.`;
+}
+
+// Kontekst rozmowy - bot zapamiętuje ostatnio wspomniany model w tej sesji czatu,
+// żeby nie pytać o niego ponownie przy kolejnych pytaniach o inne usterki.
+let botContextModel = null;
+
+function answerForResolvedModel(item, partMatch) {
+  return {
+    text: partMatch ? formatPartAnswer(item, partMatch) : formatGeneralAnswer(item),
+    action: () => selectModel(item)
+  };
+}
+
+function getBotAnswer(message) {
+  const resolved = resolveBotModel(message);
+  const partMatch = findBotPartMatch(message);
+
+  // Sama generacja bez wariantu (np. "13") ma kilka różnych cen - dopytaj,
+  // zamiast zgadywać, zanim cokolwiek policzysz.
+  if (resolved && resolved.ambiguousGeneration) {
+    return {
+      text: `${resolved.ambiguousGeneration} ma kilka wariantów z różną ceną. Który dokładnie masz?`,
+      options: resolved.variants.map((variant) => ({
+        label: variant.variantLabel,
+        onClick: () => {
+          botContextModel = variant;
+          const followUp = answerForResolvedModel(variant, partMatch);
+          addChatMessage(followUp.text, "bot", { action: followUp.action });
+        }
+      }))
+    };
+  }
+
+  const explicitModel = resolved ? resolved.item : null;
+  if (explicitModel) {
+    botContextModel = explicitModel;
+  }
+  const contextModel = explicitModel || botContextModel;
+
+  if (partMatch) {
+    if (!contextModel) {
+      return {
+        text: "Jaki masz model iPhone? Podaj nazwę albo numer (np. „13 Pro”), a sprawdzę dokładną cenę tej naprawy."
+      };
+    }
+    return answerForResolvedModel(contextModel, partMatch);
+  }
+
+  if (explicitModel) {
+    return answerForResolvedModel(explicitModel, null);
+  }
+
+  const containsPriceKeyword = /cena|koszt|ile kosztuje|wycena/i.test(message);
+  if (containsPriceKeyword) {
+    if (contextModel) {
+      return answerForResolvedModel(contextModel, null);
+    }
+    return {
+      text: "Cena zależy od modelu i rodzaju naprawy. Napisz model (np. „13 Pro cena” albo „iPhone 13 cena”), a pokażę orientacyjną wycenę, albo przejdź do sekcji cennika na stronie.",
+      link: { href: "#cennik", label: "Otwórz cennik" }
+    };
+  }
+
+  const ruleMatch = findBotRuleMatch(message);
+  if (ruleMatch) {
+    return { text: ruleMatch.answer, link: ruleMatch.link };
+  }
+
+  return {
+    text: "Nie mam gotowej odpowiedzi na to pytanie. Zadzwoń albo napisz przez formularz kontaktowy — odpowiemy najszybciej, jak to możliwe.",
+    link: { href: "#formularz", label: "Przejdź do formularza kontaktowego" }
+  };
+}
+
+const chatWidget = document.querySelector("[data-chat-widget]");
+const chatToggle = document.querySelector("[data-chat-toggle]");
+const chatPanel = document.querySelector("[data-chat-panel]");
+const chatClose = document.querySelector("[data-chat-close]");
+const chatLog = document.querySelector("[data-chat-log]");
+const chatForm = document.querySelector("[data-chat-form]");
+const chatInput = document.querySelector("#chat-input");
+
+function addChatMessage(text, from, extra = {}) {
+  if (!chatLog) {
+    return;
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = `chat-bubble chat-bubble-${from}`;
+
+  const bubble = document.createElement("p");
+  bubble.className = "chat-bubble-text";
+  bubble.textContent = text;
+  wrap.append(bubble);
+
+  if (extra.link) {
+    const anchor = document.createElement("a");
+    anchor.className = "chat-bubble-link";
+    anchor.href = extra.link.href;
+    anchor.textContent = extra.link.label;
+    if (extra.link.href.startsWith("http")) {
+      anchor.target = "_blank";
+      anchor.rel = "noopener";
+    }
+    wrap.append(anchor);
+  } else if (extra.action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chat-bubble-link";
+    button.textContent = "Pokaż w cenniku";
+    button.addEventListener("click", () => {
+      extra.action();
+      const pricingSection = document.querySelector("#cennik");
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+    wrap.append(button);
+  } else if (extra.options) {
+    const optionsWrap = document.createElement("div");
+    optionsWrap.className = "chat-bubble-options";
+    extra.options.forEach((option) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "chat-bubble-link chat-bubble-option";
+      button.textContent = option.label;
+      button.addEventListener("click", () => option.onClick());
+      optionsWrap.append(button);
+    });
+    wrap.append(optionsWrap);
+  }
+
+  chatLog.append(wrap);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function handleBotQuestion(question) {
+  const trimmed = question.trim();
+  if (!trimmed) {
+    return;
+  }
+
+  addChatMessage(trimmed, "user");
+  const response = getBotAnswer(trimmed);
+  addChatMessage(response.text, "bot", response);
+}
+
+// Prowadzona ścieżka na start rozmowy: generacja -> wariant -> co się stało.
+// Klient rzadko sam zacznie od trafnego pytania - łatwiej poprowadzić go
+// przyciskami, niż czekać aż wpisze coś, co bot rozpozna.
+const BOT_SYMPTOM_CHIPS = [
+  "Pękł ekran",
+  "Nie ładuje się",
+  "Szybko się rozładowuje",
+  "Zalany",
+  "Nie robi zdjęć"
+];
+
+function promptForBotSymptom() {
+  addChatMessage(`Mam: ${botContextModel.model}. Co się stało z telefonem? Napisz krótko albo wybierz poniżej.`, "bot", {
+    options: [
+      ...BOT_SYMPTOM_CHIPS.map((symptom) => ({
+        label: symptom,
+        onClick: () => handleBotQuestion(symptom)
+      })),
+      {
+        label: "Coś innego — napiszę",
+        onClick: () => {
+          if (chatInput) {
+            chatInput.focus();
+          }
+        }
+      }
+    ]
+  });
+}
+
+function handleBotVariantPick(variant) {
+  addChatMessage(variant.variantLabel, "user");
+  botContextModel = variant;
+  promptForBotSymptom();
+}
+
+function handleBotGenerationPick(generation) {
+  addChatMessage(generation, "user");
+  const variants = PRICE_DATA.filter((entry) => entry.generation === generation);
+  if (variants.length === 1) {
+    botContextModel = variants[0];
+    promptForBotSymptom();
+    return;
+  }
+  addChatMessage(`Który dokładnie wariant ${generation}?`, "bot", {
+    options: variants.map((variant) => ({
+      label: variant.variantLabel,
+      onClick: () => handleBotVariantPick(variant)
+    }))
+  });
+}
+
+function startBotOnboarding() {
+  addChatMessage("Zacznijmy od Twojego telefonu — jaki masz model?", "bot", {
+    options: GENERATIONS.map((generation) => ({
+      label: generation.replace(/^iPhone\s*/i, ""),
+      onClick: () => handleBotGenerationPick(generation)
+    }))
+  });
+}
+
+if (chatWidget && chatToggle && chatPanel) {
+  let chatInitialized = false;
+  let chatUserInteracted = false;
+
+  const openChat = ({ focusInput = true } = {}) => {
+    chatPanel.removeAttribute("hidden");
+    chatToggle.setAttribute("aria-expanded", "true");
+    if (!chatInitialized) {
+      addChatMessage("Cześć! Jestem asystentem MojIphone.", "bot");
+      startBotOnboarding();
+      chatInitialized = true;
+    }
+    if (chatInput && focusInput) {
+      chatInput.focus();
+    }
+  };
+
+  const closeChat = () => {
+    chatPanel.setAttribute("hidden", "");
+    chatToggle.setAttribute("aria-expanded", "false");
+  };
+
+  chatToggle.addEventListener("click", () => {
+    chatUserInteracted = true;
+    const isOpen = !chatPanel.hasAttribute("hidden");
+    if (isOpen) {
+      closeChat();
+    } else {
+      openChat();
+    }
+  });
+
+  if (chatClose) {
+    chatClose.addEventListener("click", () => {
+      chatUserInteracted = true;
+      closeChat();
+    });
+  }
+
+  if (chatForm && chatInput) {
+    chatForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      handleBotQuestion(chatInput.value);
+      chatInput.value = "";
+      chatInput.focus();
+    });
+  }
+
+  // Czat ma się pojawić samoczynnie w ciągu 3 s od wejścia na stronę,
+  // ale tylko jeśli klient wcześniej sam go nie otworzył ani nie zamknął.
+  window.setTimeout(() => {
+    if (!chatUserInteracted) {
+      openChat({ focusInput: false });
+    }
+  }, 3000);
+}
+
 window.dataLayer = window.dataLayer || [];
 
 document.addEventListener("click", (event) => {

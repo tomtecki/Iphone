@@ -1010,6 +1010,238 @@ a:focus-visible {
     text-align: left;
   }
 
+  .chat-panel {
+    right: 0.75rem;
+    bottom: 4.5rem;
+    left: 0.75rem;
+    width: auto;
+  }
+
+  .chat-widget {
+    right: 1rem;
+    bottom: 1rem;
+  }
+
+  .contact-dock {
+    right: 1rem;
+    bottom: calc(1rem + 52px + 0.6rem);
+  }
+
+  body:not(:has(.chat-widget)) .contact-dock {
+    bottom: 1rem;
+  }
+
+}
+
+.contact-dock {
+  position: fixed;
+  right: 1.5rem;
+  bottom: calc(1.5rem + 58px + 0.75rem);
+  z-index: 30;
+  display: grid;
+  gap: 0.6rem;
+}
+
+body:not(:has(.chat-widget)) .contact-dock {
+  bottom: 1.5rem;
+}
+
+.contact-dock-button {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  color: var(--white);
+  border-radius: 50%;
+  box-shadow: 0 10px 22px rgba(17, 32, 51, 0.22);
+  text-decoration: none;
+}
+
+.contact-dock-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.contact-dock-whatsapp {
+  background: #25d366;
+}
+
+.contact-dock-whatsapp:hover,
+.contact-dock-whatsapp:focus-visible {
+  background: #1ebc59;
+}
+
+.contact-dock-phone {
+  background: var(--blue);
+}
+
+.contact-dock-phone:hover,
+.contact-dock-phone:focus-visible {
+  background: var(--blue-deep);
+}
+
+.chat-widget {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 30;
+}
+
+.chat-toggle {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  color: var(--white);
+  background: var(--blue);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 14px 28px rgba(20, 99, 194, 0.32);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.chat-toggle:hover,
+.chat-toggle:focus-visible {
+  background: var(--blue-deep);
+}
+
+.chat-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.75rem);
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  width: min(340px, 88vw);
+  max-height: 70vh;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.chat-panel[hidden] {
+  display: none;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  color: var(--white);
+  background: var(--blue-deep);
+}
+
+.chat-close {
+  padding: 0;
+  color: var(--white);
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.chat-log {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  overflow-y: auto;
+}
+
+.chat-bubble {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.chat-bubble-text {
+  margin: 0;
+}
+
+.chat-bubble-bot {
+  justify-self: start;
+  max-width: 90%;
+  color: var(--ink);
+  background: var(--mint-soft);
+}
+
+.chat-bubble-user {
+  justify-self: end;
+  max-width: 90%;
+  color: var(--white);
+  background: var(--blue);
+}
+
+.chat-bubble-link {
+  justify-self: start;
+  padding: 0;
+  color: var(--blue-deep);
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 750;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.chat-bubble-user .chat-bubble-link {
+  color: var(--white);
+}
+
+.chat-bubble-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chat-bubble-option {
+  padding: 0.35rem 0.6rem;
+  color: var(--blue-deep);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.chat-bubble-option:hover,
+.chat-bubble-option:focus-visible {
+  background: var(--mint-soft);
+  border-color: #98d7c2;
+}
+
+
+.chat-input-row {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 0.9rem 0.75rem;
+}
+
+.chat-input-row input {
+  flex: 1;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font: inherit;
+}
+
+.chat-input-row .button {
+  min-height: auto;
+  padding: 0.6rem 0.9rem;
+}
+
+.chat-disclaimer {
+  margin: 0;
+  padding: 0 0.9rem 0.9rem;
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
