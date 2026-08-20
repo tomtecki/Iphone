@@ -764,6 +764,19 @@ if (contactForm && formNote) {
 
 // Faza 1 asystenta: bot regułowy, bez LLM i bez kosztów API - patrz pomysły.md.
 // Zbieranie leadów i wysyłka do systemu obsługującego naprawy to Faza 2, jeszcze niezaimplementowana.
+
+// Klienci piszą bez polskich znaków ("nie dziala", "laduje") - normalizacja
+// sprawia, że dopasowanie działa niezależnie od tego, czy diakrytyki są wpisane.
+const BOT_DIACRITICS_MAP = { ą: "a", ć: "c", ę: "e", ł: "l", ń: "n", ó: "o", ś: "s", ź: "z", ż: "z" };
+
+function normalizeBotText(text) {
+  return text
+    .toLowerCase()
+    .split("")
+    .map((char) => BOT_DIACRITICS_MAP[char] || char)
+    .join("");
+}
+
 const BOT_QUICK_QUESTIONS = [
   "Ile kosztuje naprawa?",
   "Jak długo trwa naprawa?",
@@ -822,22 +835,84 @@ const BOT_RULES = [
     keywords: ["telefon", "numer", "kontakt", "zadzwonić"],
     answer: "Zadzwoń: 570 222 345 — to najszybsza droga do wyceny i umówienia terminu.",
     link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
+  },
+  {
+    keywords: ["przygotować", "co zabrać", "kod odblokowania", "backup przed", "przed wizytą", "przed naprawą co"],
+    answer: "Jeśli to możliwe, wykonaj kopię zapasową, wyłącz blokady ograniczające testy i zabierz kod odblokowania albo zostań na miejscu podczas testowania funkcji.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
+  },
+  {
+    keywords: ["co naprawiacie", "jakie naprawy", "jakie usługi", "co robicie", "zakres napraw", "czym się zajmujecie"],
+    answer: "Naprawiamy: ekran/szybkę, baterię, złącze ładowania, aparat/głośnik/mikrofon, usterki po zalaniu i po upadku.",
+    link: { href: "#naprawy", label: "Zobacz wszystkie usługi" }
+  },
+  {
+    keywords: ["jak wygląda wizyta", "jak to działa", "jak zamówić", "jak umówić", "proces naprawy", "jak się umówić", "jak zgłosić"],
+    answer: "Trzy kroki: opisujesz objaw (telefon lub formularz), technik ocenia usterkę i podaje wycenę, naprawa zaczyna się po Twojej zgodzie.",
+    link: { href: "#proces", label: "Zobacz pełny proces" }
+  },
+  {
+    keywords: ["upadek", "upadł", "spadł", "wypadł z ręki", "stłuczony telefon"],
+    answer: "Po upadku sprawdzamy ekran, ramkę, aparat, ładowanie, anteny i inne elementy, które mogły ucierpieć nawet wtedy, gdy telefon wygląda dobrze.",
+    link: { href: "#naprawy", label: "Zobacz usługę" }
+  },
+  {
+    keywords: ["opinie", "recenzje", "referencje", "czy macie opinie"],
+    answer: "4,9/5 na podstawie 164 opinii Google — prawdziwe recenzje klientów są na tej stronie.",
+    link: { href: "#opinie", label: "Zobacz opinie" }
+  },
+  {
+    keywords: ["formularz", "zgłoszenie wyślij", "napisać zamiast dzwonić"],
+    answer: "Formularz kontaktowy jest na dole strony — podaj model, objawy i preferowany kontakt.",
+    link: { href: "#formularz", label: "Przejdź do formularza" }
   }
 ];
 
 // Mapa usterek na klucze z PRICE_DATA/SERVICES - żeby bot odpowiadał dokładnie
-// na zapytaną część, a nie zawsze podsumowaniem ekran+bateria.
+// na zapytaną część, a nie zawsze podsumowaniem ekran+bateria. Oprócz nazw usług
+// (np. "ekran") rozpoznaje też opisy objawów, jak realnie pisze klient
+// (np. "pękł mi ekran", "nie ładuje się", "słabo trzyma baterię").
 const BOT_PART_GROUPS = [
-  { keywords: ["aparat", "kamer"], keys: ["rearCamera", "frontCamera"] },
-  { keywords: ["ekran", "wyświetlacz", "wyswietlacz", "szybk", "display", "matryc"], keys: ["screen"] },
-  { keywords: ["bateri", "akumulator"], keys: ["battery"] },
-  { keywords: ["ładowani", "ladowani", "gniazdo", "port ładowania", "wtyczk"], keys: ["charging"] },
-  { keywords: ["głośnik", "glosnik"], keys: ["speakerTop", "speakerBottom"] },
-  { keywords: ["mikrofon"], keys: ["mic"] },
-  { keywords: ["obudow", "korpus", "szkło tylne", "szklo tylne", "tylna szyb", "tył telefonu", "tyl telefonu"], keys: ["housing", "backGlass"] },
-  { keywords: ["przycisk", "guzik", "home"], keys: ["buttons", "home"] },
-  { keywords: ["czujnik zbliżeniowy", "czujnik zblizeniowy", "czujnik"], keys: ["sensor"] },
-  { keywords: ["antena", "sim"], keys: ["sim"] }
+  {
+    keywords: ["aparat", "kamer", "rozmazane zdjęcia", "nie robi zdjęć", "facetime", "nie widzę obrazu z aparatu"],
+    keys: ["rearCamera", "frontCamera"]
+  },
+  {
+    keywords: ["ekran", "wyświetlacz", "szybk", "display", "matryc", "pękł", "pęknięty", "peknieta", "rozbity", "miga", "plamy", "nie reaguje na dotyk", "czarny ekran", "nie widać obrazu"],
+    keys: ["screen"]
+  },
+  {
+    keywords: ["bateri", "akumulator", "szybko się rozładowuje", "wyłącza się sam", "słabo trzyma", "kondycja baterii", "szybko traci baterię"],
+    keys: ["battery"]
+  },
+  {
+    keywords: ["ładowani", "gniazdo", "port ładowania", "wtyczk", "nie ładuje się", "wolno się ładuje", "przerywane ładowanie", "kabel nie działa"],
+    keys: ["charging"]
+  },
+  {
+    keywords: ["głośnik", "charczy", "cichy dźwięk", "rozmówcy nie słyszą", "słabo słychać", "nie słyszę rozmówcy"],
+    keys: ["speakerTop", "speakerBottom"]
+  },
+  {
+    keywords: ["mikrofon", "mnie nie słyszą", "nie słychać mnie", "rozmówca mnie nie słyszy"],
+    keys: ["mic"]
+  },
+  {
+    keywords: ["obudow", "korpus", "szkło tylne", "tylna szyb", "tył telefonu", "pęknięta obudowa", "tył się rozleciał"],
+    keys: ["housing", "backGlass"]
+  },
+  {
+    keywords: ["przycisk", "guzik", "home", "nie działa przycisk", "nie reaguje przycisk"],
+    keys: ["buttons", "home"]
+  },
+  {
+    keywords: ["czujnik zbliżeniowy", "czujnik"],
+    keys: ["sensor"]
+  },
+  {
+    keywords: ["antena", "sim", "nie łapie zasięgu", "brak zasięgu"],
+    keys: ["sim"]
+  }
 ];
 
 function escapeBotRegExp(value) {
@@ -845,19 +920,19 @@ function escapeBotRegExp(value) {
 }
 
 function findBotModelMatch(message) {
-  const normalized = message.toLowerCase();
-  return PRICE_DATA.find((item) => normalized.includes(item.model.toLowerCase())) || null;
+  const normalized = normalizeBotText(message);
+  return PRICE_DATA.find((item) => normalized.includes(normalizeBotText(item.model))) || null;
 }
 
 // Rozpoznaje wariant modelu po samym numerze/nazwie, bez słowa "iPhone"
 // (np. "13 pro max", "16e", "se 2020") - klient rzadko pisze pełne zdania.
 const BARE_MODEL_MAP = PRICE_DATA
-  .map((item) => ({ item, bare: item.model.replace(/^iPhone\s*/i, "").trim().toLowerCase() }))
+  .map((item) => ({ item, bare: normalizeBotText(item.model.replace(/^iPhone\s*/i, "").trim()) }))
   .filter(({ bare }) => bare.length > 0)
   .sort((a, b) => b.bare.length - a.bare.length);
 
 function findBotBareModelMatch(message) {
-  const normalized = message.toLowerCase();
+  const normalized = normalizeBotText(message);
   const match = BARE_MODEL_MAP.find(({ bare }) => new RegExp(`\\b${escapeBotRegExp(bare)}\\b`, "i").test(normalized));
   return match ? match.item : null;
 }
@@ -866,12 +941,12 @@ function findBotBareModelMatch(message) {
 // niż jeden wariant cenowy, bot musi dopytać zamiast zgadywać.
 const GENERATION_BARE_MAP = GENERATIONS
   .filter((generation) => !generation.includes("/"))
-  .map((generation) => ({ generation, bare: generation.replace(/^iPhone\s*/i, "").trim().toLowerCase() }))
+  .map((generation) => ({ generation, bare: normalizeBotText(generation.replace(/^iPhone\s*/i, "").trim()) }))
   .filter(({ bare }) => bare.length > 0)
   .sort((a, b) => b.bare.length - a.bare.length);
 
 function findBotGenerationMatch(message) {
-  const normalized = message.toLowerCase();
+  const normalized = normalizeBotText(message);
   const match = GENERATION_BARE_MAP.find(({ bare }) => new RegExp(`\\b${escapeBotRegExp(bare)}\\b`, "i").test(normalized));
   return match ? match.generation : null;
 }
@@ -895,13 +970,13 @@ function resolveBotModel(message) {
 }
 
 function findBotPartMatch(message) {
-  const normalized = message.toLowerCase();
-  return BOT_PART_GROUPS.find((group) => group.keywords.some((keyword) => normalized.includes(keyword))) || null;
+  const normalized = normalizeBotText(message);
+  return BOT_PART_GROUPS.find((group) => group.keywords.some((keyword) => normalized.includes(normalizeBotText(keyword)))) || null;
 }
 
 function findBotRuleMatch(message) {
-  const normalized = message.toLowerCase();
-  return BOT_RULES.find((rule) => rule.keywords.some((keyword) => normalized.includes(keyword))) || null;
+  const normalized = normalizeBotText(message);
+  return BOT_RULES.find((rule) => rule.keywords.some((keyword) => normalized.includes(normalizeBotText(keyword)))) || null;
 }
 
 function formatPartAnswer(item, partGroup) {

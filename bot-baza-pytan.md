@@ -15,6 +15,17 @@ Klient nie pisze pełnych zdań. Pisze "13 wymiana ekranu", "16e cena", "aparat 
 
 **Kontekst rozmowy:** raz podany model (`botContextModel`) zostaje zapamiętany do końca sesji czatu. Kolejne pytania o inne usterki ("a bateria?", "a ładowanie?") używają go automatycznie — bot nie pyta drugi raz o model, dopóki użytkownik nie poda nowego.
 
+## Rozszerzenie: normalizacja i pełne przeskanowanie treści strony
+
+Po pierwszym wdrożeniu okazało się, że baza była za wąska — trafiała tylko w dokładne sformułowania. Dwie zmiany:
+
+1. **Normalizacja tekstu bez polskich znaków** (`normalizeBotText`) — klienci piszą "nie dziala", "laduje sie", "peknieta" bez diakrytyków. Bot teraz normalizuje zarówno wiadomość klienta, jak i słowa kluczowe w bazie przed porównaniem, więc "ładowanie" i "ladowanie" trafiają w tę samą regułę bez podwójnego wpisywania wariantów.
+2. **Przeskanowano całą treść `index.html`** (karty usług, proces, FAQ, opinie, trust-strip) i dopisano brakujące tematy oraz **frazy opisujące objawy**, a nie tylko nazwy usług — bo klient pisze "pękł mi ekran" albo "nie ładuje się", a nie "wymiana wyświetlacza".
+
+Nowe tematy dodane do `BOT_RULES`: przygotowanie do serwisu, pełny zakres usług, przebieg wizyty/proces, usterki po upadku, opinie klientów, formularz kontaktowy.
+
+Nowe frazy objawowe dodane do `BOT_PART_GROUPS` (przykłady): "pękł/rozbity/czarny ekran", "szybko się rozładowuje/słabo trzyma" (bateria), "nie ładuje się/wolno się ładuje" (ładowanie), "rozmówcy nie słyszą/charczy" (głośnik), "mnie nie słyszą" (mikrofon), "brak zasięgu" (antena/SIM).
+
 ## Baza reguł (intencje bez modelu)
 
 | Intencja | Przykładowe frazy klienta | Odpowiedź | Link/akcja |
