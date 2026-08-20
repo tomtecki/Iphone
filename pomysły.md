@@ -97,14 +97,21 @@ Dziś namiary na to częściowo już istnieją: `script.js` ma gotowy `window.da
 
 **Potencjalny klient:** Nie mam nic przeciwko analityce, o ile nie śledzi mnie bez pytania — jasny, prosty banner "Akceptuję/Odrzucam" wystarczy, nie chcę wielostopniowego formularza zgód.
 
-### Rekomendacja zespołu
+### Rekomendacja zespołu (pierwotna, GTM/GA4)
 
-✅ **Wdrożyć, w tej kolejności:**
-1. Banner zgody na cookie (blokuje ładowanie trackerów do czasu akceptacji) — wymóg prawny, nie opcja.
-2. Google Tag Manager jako warstwa wpinająca (kod strony już generuje zdarzenia w `dataLayer`, gotowe do podłączenia).
-3. W GTM: tag GA4 + zdefiniowane zdarzenia konwersji z listy Behawiorysty wyżej.
+✅ Wdrożyć: banner zgody na cookie → Google Tag Manager → tag GA4 + zdarzenia konwersji z listy Behawiorysty wyżej.
 
-**Blokada do wdrożenia:** potrzebny **Container ID z Google Tag Manager** (i/lub Measurement ID z GA4) należący do klienta — to musi założyć klient (konto Google), nie można tego zrobić bez dostępu do jego konta Google.
+**Blokada do wdrożenia:** potrzebny Container ID z Google Tag Manager (i/lub Measurement ID z GA4) należący do klienta.
+
+### Decyzja klienta (2026-08-20): self-hosted Umami zamiast GA4/GTM
+
+Klient ma własny serwer i woli hostować analitykę samodzielnie. Zespół omówił alternatywy (Umami, Plausible CE, Matomo, PostHog, GoatCounter) — rekomendacja padła na **Umami**: lekkie, bez cookies domyślnie (**nie wymaga bannera zgody RODO**), estetyczny dashboard, proste wdrożenie przez Docker Compose.
+
+**Status:** klient przygotowuje instalację na własnym serwerze (przy pomocy własnego asystenta/"codexa"). Instrukcja instalacji (Docker Compose, reverse proxy, pierwsze logowanie) przekazana klientowi poza tym repo.
+
+**Blokada do wdrożenia w kodzie strony:** potrzebny wygenerowany tag `<script defer src="https://.../script.js" data-website-id="...">` z panelu Umami po stronie klienta — dopiero wtedy można wpiąć go do `index.html`/`sprawdz-model-iphone.html`.
+
+**Nieaktualne po tej decyzji:** krok "banner zgody na cookie" (punkt 1 rekomendacji GTM/GA4 wyżej) — Umami w domyślnej konfiguracji nie wymaga zgody, więc banner nie jest potrzebny, chyba że klient później doda inne narzędzia korzystające z cookies.
 
 ---
 
