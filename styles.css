@@ -1111,7 +1111,7 @@ body:not(:has(.chat-widget)) .contact-dock {
   right: 0;
   bottom: calc(100% + 0.75rem);
   display: grid;
-  grid-template-rows: auto 1fr auto auto auto;
+  grid-template-rows: auto 1fr auto auto;
   width: min(340px, 88vw);
   max-height: 70vh;
   background: var(--white);
@@ -1217,29 +1217,6 @@ body:not(:has(.chat-widget)) .contact-dock {
   border-color: #98d7c2;
 }
 
-.chat-quick {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0 0.9rem 0.75rem;
-}
-
-.chat-quick-button {
-  padding: 0.45rem 0.65rem;
-  color: var(--blue-deep);
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.chat-quick-button:hover,
-.chat-quick-button:focus-visible {
-  background: var(--mint-soft);
-  border-color: #98d7c2;
-}
 
 .chat-input-row {
   display: flex;

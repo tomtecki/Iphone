@@ -777,14 +777,6 @@ function normalizeBotText(text) {
     .join("");
 }
 
-const BOT_QUICK_QUESTIONS = [
-  "Ile kosztuje naprawa?",
-  "Jak długo trwa naprawa?",
-  "Dojeżdżacie do mojego miasta?",
-  "Jakie są godziny pracy?",
-  "Naprawiacie po zalaniu?"
-];
-
 const BOT_RULES = [
   {
     keywords: ["ile trwa", "jak długo", "czas naprawy", "kiedy będzie gotowe", "ile czasu", "trwa naprawa", "trwa wymiana"],
@@ -1072,7 +1064,6 @@ const chatToggle = document.querySelector("[data-chat-toggle]");
 const chatPanel = document.querySelector("[data-chat-panel]");
 const chatClose = document.querySelector("[data-chat-close]");
 const chatLog = document.querySelector("[data-chat-log]");
-const chatQuick = document.querySelector("[data-chat-quick]");
 const chatForm = document.querySelector("[data-chat-form]");
 const chatInput = document.querySelector("#chat-input");
 
@@ -1202,23 +1193,6 @@ function startBotOnboarding() {
   });
 }
 
-function renderChatQuickQuestions() {
-  if (!chatQuick) {
-    return;
-  }
-
-  chatQuick.innerHTML = "";
-
-  BOT_QUICK_QUESTIONS.forEach((question) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "chat-quick-button";
-    button.textContent = question;
-    button.addEventListener("click", () => handleBotQuestion(question));
-    chatQuick.append(button);
-  });
-}
-
 if (chatWidget && chatToggle && chatPanel) {
   let chatInitialized = false;
   let chatUserInteracted = false;
@@ -1229,7 +1203,6 @@ if (chatWidget && chatToggle && chatPanel) {
     if (!chatInitialized) {
       addChatMessage("Cześć! Jestem asystentem MojIphone.", "bot");
       startBotOnboarding();
-      renderChatQuickQuestions();
       chatInitialized = true;
     }
     if (chatInput && focusInput) {
