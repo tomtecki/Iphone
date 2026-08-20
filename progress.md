@@ -1,6 +1,6 @@
 # Progress — strona MojIphone
 
-Ostatnia aktualizacja: 2026-08-20
+Ostatnia aktualizacja: 2026-08-20 (analityka)
 
 ## ✅ Zrobione
 
@@ -16,6 +16,9 @@ Ostatnia aktualizacja: 2026-08-20
 - Zdjęcie "technik przy pracy" wygenerowane przez klienta, wpięte w sekcję intro.
 - Plik `zdjeciaprompt.md` z gotowymi promptami do wygenerowania kolejnych zdjęć.
 - Repozytorium GitHub podłączone: https://github.com/tomtecki/Iphone.git
+- Analityka: self-hosted **Umami** (bez cookies, bez bannera zgody RODO) na własnym serwerze klienta (`analytics.mojiphone.pl`), skrypt wpięty w `index.html` i `sprawdz-model-iphone.html`. Instrukcja instalacji w `analityka.md`, decyzja i alternatywy w `pomysły.md`.
+- Miejsce na zdjęcie modelu w panelu cennika (placeholder 📱 do czasu wyboru źródła zdjęć — **nie** wolno używać zdjęć z apple.com, prawa autorskie).
+- `pomysły.md` — zbiorczy log koncepcji dyskutowanych z zespołem (bot/agent leadowy, landing page per model, widget opinii, analityka) z rekomendacjami i statusami.
 
 ## ⚠️ Brakuje / blokuje publikację
 
