@@ -774,12 +774,12 @@ const BOT_QUICK_QUESTIONS = [
 
 const BOT_RULES = [
   {
-    keywords: ["ile trwa", "jak długo", "czas naprawy", "kiedy będzie gotowe"],
+    keywords: ["ile trwa", "jak długo", "czas naprawy", "kiedy będzie gotowe", "ile czasu", "trwa naprawa", "trwa wymiana"],
     answer: "Najczęściej naprawa jest możliwa tego samego dnia, jeśli część jest dostępna. Przy rzadszych modelach termin potwierdzamy telefonicznie.",
     link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
-    keywords: ["dojazd", "dojeżdżacie", "obszar", "twoje miasto", "moje miasto", "przyjedziecie"],
+    keywords: ["dojazd", "dojeżdżacie", "obszar", "twoje miasto", "moje miasto", "przyjedziecie", "jakich miast", "do jakich miast", "docie", "dojechać", "dojechac", "obsługujecie"],
     answer: "Dojazd na terenie Rybnika jest wliczony w cenę. Obsługujemy też Żory, Wodzisław Śląski, Jastrzębie-Zdrój, Gliwice i Katowice — koszt dojazdu dla tych miast potwierdzamy telefonicznie.",
     link: { href: "#obszar", label: "Zobacz obsługiwane lokalizacje" }
   },
@@ -825,9 +825,29 @@ const BOT_RULES = [
   }
 ];
 
+// Mapa usterek na klucze z PRICE_DATA/SERVICES - żeby bot odpowiadał dokładnie
+// na zapytaną część, a nie zawsze podsumowaniem ekran+bateria.
+const BOT_PART_GROUPS = [
+  { keywords: ["aparat", "kamer"], keys: ["rearCamera", "frontCamera"] },
+  { keywords: ["ekran", "wyświetlacz", "wyswietlacz", "szybk", "display", "matryc"], keys: ["screen"] },
+  { keywords: ["bateri", "akumulator"], keys: ["battery"] },
+  { keywords: ["ładowani", "ladowani", "gniazdo", "port ładowania", "wtyczk"], keys: ["charging"] },
+  { keywords: ["głośnik", "glosnik"], keys: ["speakerTop", "speakerBottom"] },
+  { keywords: ["mikrofon"], keys: ["mic"] },
+  { keywords: ["obudow", "korpus", "szkło tylne", "szklo tylne", "tylna szyb", "tył telefonu", "tyl telefonu"], keys: ["housing", "backGlass"] },
+  { keywords: ["przycisk", "guzik", "home"], keys: ["buttons", "home"] },
+  { keywords: ["czujnik zbliżeniowy", "czujnik zblizeniowy", "czujnik"], keys: ["sensor"] },
+  { keywords: ["antena", "sim"], keys: ["sim"] }
+];
+
 function findBotModelMatch(message) {
   const normalized = message.toLowerCase();
   return PRICE_DATA.find((item) => normalized.includes(item.model.toLowerCase())) || null;
+}
+
+function findBotPartMatch(message) {
+  const normalized = message.toLowerCase();
+  return BOT_PART_GROUPS.find((group) => group.keywords.some((keyword) => normalized.includes(keyword))) || null;
 }
 
 function findBotRuleMatch(message) {
@@ -835,19 +855,61 @@ function findBotRuleMatch(message) {
   return BOT_RULES.find((rule) => rule.keywords.some((keyword) => normalized.includes(keyword))) || null;
 }
 
+function formatPartAnswer(item, partGroup) {
+  const lines = partGroup.keys.map((key) => {
+    const serviceEntry = SERVICES.find(([entryKey]) => entryKey === key);
+    const label = serviceEntry ? serviceEntry[1] : key;
+    const values = item[key] || NA;
+    return `${label} — zamiennik ${values[0]}, oryginał ${values[1]}, czas ${values[2]}`;
+  });
+  return `Dla ${item.model}: ${lines.join("; ")}.`;
+}
+
+function formatGeneralAnswer(item) {
+  const screen = item.screen ? item.screen[1] : "Na zapytanie";
+  const battery = item.battery ? item.battery[1] : "Na zapytanie";
+  return `Dla ${item.model}: wymiana ekranu (oryginał) ${screen}, wymiana baterii (oryginał) ${battery}. Pełny cennik i pozostałe naprawy zobaczysz w sekcji cennika.`;
+}
+
+// Kontekst rozmowy - bot zapamiętuje ostatnio wspomniany model w tej sesji czatu,
+// żeby nie pytać o niego ponownie przy kolejnych pytaniach o inne usterki.
+let botContextModel = null;
+
 function getBotAnswer(message) {
-  const modelMatch = findBotModelMatch(message);
-  if (modelMatch) {
-    const screen = modelMatch.screen ? modelMatch.screen[1] : "Na zapytanie";
-    const battery = modelMatch.battery ? modelMatch.battery[1] : "Na zapytanie";
+  const explicitModel = findBotModelMatch(message);
+  if (explicitModel) {
+    botContextModel = explicitModel;
+  }
+  const contextModel = explicitModel || botContextModel;
+  const partMatch = findBotPartMatch(message);
+
+  if (partMatch) {
+    if (!contextModel) {
+      return {
+        text: "Jaki masz model iPhone? Podaj nazwę (np. „iPhone 13”), a sprawdzę dokładną cenę tej naprawy."
+      };
+    }
     return {
-      text: `Dla ${modelMatch.model}: wymiana ekranu (oryginał) ${screen}, wymiana baterii (oryginał) ${battery}. Pełny cennik i warianty zamiennika zobaczysz w sekcji cennika.`,
-      action: () => selectModel(modelMatch)
+      text: formatPartAnswer(contextModel, partMatch),
+      action: () => selectModel(contextModel)
+    };
+  }
+
+  if (explicitModel) {
+    return {
+      text: formatGeneralAnswer(explicitModel),
+      action: () => selectModel(explicitModel)
     };
   }
 
   const containsPriceKeyword = /cena|koszt|ile kosztuje|wycena/i.test(message);
   if (containsPriceKeyword) {
+    if (contextModel) {
+      return {
+        text: formatGeneralAnswer(contextModel),
+        action: () => selectModel(contextModel)
+      };
+    }
     return {
       text: "Cena zależy od modelu i rodzaju naprawy. Napisz konkretny model (np. „iPhone 13 cena”), a pokażę orientacyjną wycenę, albo przejdź do sekcji cennika na stronie.",
       link: { href: "#cennik", label: "Otwórz cennik" }

@@ -1022,6 +1022,62 @@ a:focus-visible {
     bottom: 1rem;
   }
 
+  .contact-dock {
+    right: 1rem;
+    bottom: calc(1rem + 52px + 0.6rem);
+  }
+
+  body:not(:has(.chat-widget)) .contact-dock {
+    bottom: 1rem;
+  }
+
+}
+
+.contact-dock {
+  position: fixed;
+  right: 1.5rem;
+  bottom: calc(1.5rem + 58px + 0.75rem);
+  z-index: 30;
+  display: grid;
+  gap: 0.6rem;
+}
+
+body:not(:has(.chat-widget)) .contact-dock {
+  bottom: 1.5rem;
+}
+
+.contact-dock-button {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  color: var(--white);
+  border-radius: 50%;
+  box-shadow: 0 10px 22px rgba(17, 32, 51, 0.22);
+  text-decoration: none;
+}
+
+.contact-dock-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.contact-dock-whatsapp {
+  background: #25d366;
+}
+
+.contact-dock-whatsapp:hover,
+.contact-dock-whatsapp:focus-visible {
+  background: #1ebc59;
+}
+
+.contact-dock-phone {
+  background: var(--blue);
+}
+
+.contact-dock-phone:hover,
+.contact-dock-phone:focus-visible {
+  background: var(--blue-deep);
 }
 
 .chat-widget {
