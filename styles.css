@@ -1092,11 +1092,16 @@ a:focus-visible {
 }
 
 .chat-bubble {
-  margin: 0;
+  display: grid;
+  gap: 0.4rem;
   padding: 0.6rem 0.75rem;
   border-radius: var(--radius);
   font-size: 0.92rem;
   line-height: 1.45;
+}
+
+.chat-bubble-text {
+  margin: 0;
 }
 
 .chat-bubble-bot {
@@ -1111,6 +1116,23 @@ a:focus-visible {
   max-width: 90%;
   color: var(--white);
   background: var(--blue);
+}
+
+.chat-bubble-link {
+  justify-self: start;
+  padding: 0;
+  color: var(--blue-deep);
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 750;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.chat-bubble-user .chat-bubble-link {
+  color: var(--white);
 }
 
 .chat-quick {

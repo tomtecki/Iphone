@@ -775,43 +775,53 @@ const BOT_QUICK_QUESTIONS = [
 const BOT_RULES = [
   {
     keywords: ["ile trwa", "jak długo", "czas naprawy", "kiedy będzie gotowe"],
-    answer: "Najczęściej naprawa jest możliwa tego samego dnia, jeśli część jest dostępna. Przy rzadszych modelach termin potwierdzamy telefonicznie."
+    answer: "Najczęściej naprawa jest możliwa tego samego dnia, jeśli część jest dostępna. Przy rzadszych modelach termin potwierdzamy telefonicznie.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
     keywords: ["dojazd", "dojeżdżacie", "obszar", "twoje miasto", "moje miasto", "przyjedziecie"],
-    answer: "Dojazd na terenie Rybnika jest wliczony w cenę. Obsługujemy też Żory, Wodzisław Śląski, Jastrzębie-Zdrój, Gliwice i Katowice — koszt dojazdu dla tych miast potwierdzamy telefonicznie."
+    answer: "Dojazd na terenie Rybnika jest wliczony w cenę. Obsługujemy też Żory, Wodzisław Śląski, Jastrzębie-Zdrój, Gliwice i Katowice — koszt dojazdu dla tych miast potwierdzamy telefonicznie.",
+    link: { href: "#obszar", label: "Zobacz obsługiwane lokalizacje" }
   },
   {
     keywords: ["godziny", "kiedy otwarte", "czynne", "pracujecie", "godzin pracy"],
-    answer: "Pracujemy pon.–pt. 9:00–18:00 oraz w soboty 10:00–14:00."
+    answer: "Pracujemy pon.–pt. 9:00–18:00 oraz w soboty 10:00–14:00.",
+    link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
   },
   {
     keywords: ["w domu", "u mnie", "gdzie naprawa", "gdzie odbywa"],
-    answer: "Nie trzeba nikogo wpuszczać do domu ani biura — naprawa odbywa się w specjalnie przystosowanym samochodzie serwisowym pod wskazanym adresem."
+    answer: "Nie trzeba nikogo wpuszczać do domu ani biura — naprawa odbywa się w specjalnie przystosowanym samochodzie serwisowym pod wskazanym adresem.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
     keywords: ["zalanie", "zalany", "woda", "wpadł do wody", "wpadł w wodę"],
-    answer: "Nie podłączaj zalanego telefonu do ładowarki. Wykonujemy diagnostykę po zalaniu — im szybciej trafi do nas telefon, tym większa szansa na ograniczenie szkód."
+    answer: "Nie podłączaj zalanego telefonu do ładowarki. Wykonujemy diagnostykę po zalaniu — im szybciej trafi do nas telefon, tym większa szansa na ograniczenie szkód.",
+    link: { href: "#naprawy", label: "Zobacz usługę diagnostyki po zalaniu" }
   },
   {
     keywords: ["nie znam modelu", "nie wiem jaki mam", "jaki to model"],
-    answer: "Nie musisz znać dokładnego modelu z góry — sprawdzimy go na miejscu, albo skorzystaj z naszego poradnika: sprawdz-model-iphone.html"
+    answer: "Nie musisz znać dokładnego modelu z góry — sprawdzimy go na miejscu, albo skorzystaj z naszego poradnika.",
+    link: { href: "sprawdz-model-iphone.html", label: "Otwórz poradnik: jak sprawdzić model" }
   },
   {
     keywords: ["dane", "kasujecie dane", "utracę dane", "kopia zapasowa"],
-    answer: "Standardowe naprawy mechaniczne nie wymagają kasowania danych. Mimo to warto mieć aktualną kopię zapasową, zwłaszcza przy zalaniu lub problemach z płytą."
+    answer: "Standardowe naprawy mechaniczne nie wymagają kasowania danych. Mimo to warto mieć aktualną kopię zapasową, zwłaszcza przy zalaniu lub problemach z płytą.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
     keywords: ["faktura", "dokument sprzedaży", "rachunek"],
-    answer: "Tak, po naprawie możemy wystawić dokument sprzedaży. Dane do faktury najlepiej podać przy przyjęciu telefonu."
+    answer: "Tak, po naprawie możemy wystawić dokument sprzedaży. Dane do faktury najlepiej podać przy przyjęciu telefonu.",
+    link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
     keywords: ["gwarancj"],
-    answer: "Na wykonane naprawy obowiązuje gwarancja — dokładne warunki potwierdzimy przy wycenie telefonicznej."
+    answer: "Na wykonane naprawy obowiązuje gwarancja — dokładne warunki potwierdzimy przy wycenie telefonicznej.",
+    link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
   },
   {
     keywords: ["telefon", "numer", "kontakt", "zadzwonić"],
-    answer: "Zadzwoń: 570 222 345 — to najszybsza droga do wyceny i umówienia terminu."
+    answer: "Zadzwoń: 570 222 345 — to najszybsza droga do wyceny i umówienia terminu.",
+    link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
   }
 ];
 
@@ -830,20 +840,29 @@ function getBotAnswer(message) {
   if (modelMatch) {
     const screen = modelMatch.screen ? modelMatch.screen[1] : "Na zapytanie";
     const battery = modelMatch.battery ? modelMatch.battery[1] : "Na zapytanie";
-    return `Dla ${modelMatch.model}: wymiana ekranu (oryginał) ${screen}, wymiana baterii (oryginał) ${battery}. Pełny cennik i warianty zamiennika zobaczysz w sekcji cennika wyżej na stronie.`;
+    return {
+      text: `Dla ${modelMatch.model}: wymiana ekranu (oryginał) ${screen}, wymiana baterii (oryginał) ${battery}. Pełny cennik i warianty zamiennika zobaczysz w sekcji cennika.`,
+      action: () => selectModel(modelMatch)
+    };
   }
 
   const containsPriceKeyword = /cena|koszt|ile kosztuje|wycena/i.test(message);
   if (containsPriceKeyword) {
-    return "Cena zależy od modelu i rodzaju naprawy. Napisz konkretny model (np. „iPhone 13 cena”), a pokażę orientacyjną wycenę, albo przejdź do sekcji cennika na stronie.";
+    return {
+      text: "Cena zależy od modelu i rodzaju naprawy. Napisz konkretny model (np. „iPhone 13 cena”), a pokażę orientacyjną wycenę, albo przejdź do sekcji cennika na stronie.",
+      link: { href: "#cennik", label: "Otwórz cennik" }
+    };
   }
 
   const ruleMatch = findBotRuleMatch(message);
   if (ruleMatch) {
-    return ruleMatch.answer;
+    return { text: ruleMatch.answer, link: ruleMatch.link };
   }
 
-  return "Nie mam gotowej odpowiedzi na to pytanie. Zadzwoń: 570 222 345 albo napisz przez formularz kontaktowy na dole strony — odpowiemy najszybciej, jak to możliwe.";
+  return {
+    text: "Nie mam gotowej odpowiedzi na to pytanie. Zadzwoń albo napisz przez formularz kontaktowy — odpowiemy najszybciej, jak to możliwe.",
+    link: { href: "#formularz", label: "Przejdź do formularza kontaktowego" }
+  };
 }
 
 const chatWidget = document.querySelector("[data-chat-widget]");
@@ -855,15 +874,45 @@ const chatQuick = document.querySelector("[data-chat-quick]");
 const chatForm = document.querySelector("[data-chat-form]");
 const chatInput = document.querySelector("#chat-input");
 
-function addChatMessage(text, from) {
+function addChatMessage(text, from, link, action) {
   if (!chatLog) {
     return;
   }
 
+  const wrap = document.createElement("div");
+  wrap.className = `chat-bubble chat-bubble-${from}`;
+
   const bubble = document.createElement("p");
-  bubble.className = `chat-bubble chat-bubble-${from}`;
+  bubble.className = "chat-bubble-text";
   bubble.textContent = text;
-  chatLog.append(bubble);
+  wrap.append(bubble);
+
+  if (link) {
+    const anchor = document.createElement("a");
+    anchor.className = "chat-bubble-link";
+    anchor.href = link.href;
+    anchor.textContent = link.label;
+    if (link.href.startsWith("http")) {
+      anchor.target = "_blank";
+      anchor.rel = "noopener";
+    }
+    wrap.append(anchor);
+  } else if (action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chat-bubble-link";
+    button.textContent = "Pokaż w cenniku";
+    button.addEventListener("click", () => {
+      action();
+      const pricingSection = document.querySelector("#cennik");
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+    wrap.append(button);
+  }
+
+  chatLog.append(wrap);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
@@ -874,7 +923,8 @@ function handleBotQuestion(question) {
   }
 
   addChatMessage(trimmed, "user");
-  addChatMessage(getBotAnswer(trimmed), "bot");
+  const response = getBotAnswer(trimmed);
+  addChatMessage(response.text, "bot", response.link, response.action);
 }
 
 function renderChatQuickQuestions() {
