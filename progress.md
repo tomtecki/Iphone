@@ -1,6 +1,6 @@
 # Progress — strona MojIphone
 
-Ostatnia aktualizacja: 2026-08-20 (analityka)
+Ostatnia aktualizacja: 2026-08-20 (asystent-bot)
 
 ## ✅ Zrobione
 
@@ -19,6 +19,9 @@ Ostatnia aktualizacja: 2026-08-20 (analityka)
 - Analityka: self-hosted **Umami** (bez cookies, bez bannera zgody RODO) na własnym serwerze klienta (`analytics.mojiphone.pl`), skrypt wpięty w `index.html` i `sprawdz-model-iphone.html`. Instrukcja instalacji w `analityka.md`, decyzja i alternatywy w `pomysły.md`.
 - Miejsce na zdjęcie modelu w panelu cennika (placeholder 📱 do czasu wyboru źródła zdjęć — **nie** wolno używać zdjęć z apple.com, prawa autorskie).
 - `pomysły.md` — zbiorczy log koncepcji dyskutowanych z zespołem (bot/agent leadowy, landing page per model, widget opinii, analityka) z rekomendacjami i statusami.
+- **Asystent-bot (Faza 1, regułowy, bez LLM)** na `index.html`: auto-otwarcie 3 s po wejściu na stronę (chyba że klient sam wcześniej wejdzie w interakcję), prowadzona ścieżka startowa generacja → wariant → objaw (przyciski), rozpoznawanie skrótów bez słowa "iPhone" (np. "13 pro max", "16e"), dopytywanie o wariant przy niejednoznacznej generacji (np. samo "13"), pamięć modelu w rozmowie, normalizacja tekstu bez polskich znaków, odpowiedzi dokładnie per usterka (nie tylko ekran+bateria) z linkami/przyciskami do materiałów. Dokumentacja: `bot-baza-pytan.md`.
+- Ikony kontaktu (WhatsApp + telefon) — pływający dok w prawym dolnym rogu na `index.html` i `sprawdz-model-iphone.html`.
+- Faza 2 bota (zbieranie leadów + integracja z systemem obsługującym naprawy) — zaplanowana w `pomysły.md`, jeszcze niezaimplementowana.
 
 ## ⚠️ Brakuje / blokuje publikację
 
