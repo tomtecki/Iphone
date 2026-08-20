@@ -93,6 +93,19 @@ Caddy automatycznie obsłuży certyfikat SSL. Jeśli na serwerze jest nginx zami
 
 Skopiuj **dokładnie ten fragment `<script>`** (cały tag, z pełnym adresem `src` i wartością `data-website-id`) i przekaż go do wklejenia w kodzie strony (repozytorium `tomtecki/Iphone`, plik `index.html` i `sprawdz-model-iphone.html`). To jedyna rzecz potrzebna do dokończenia integracji po stronie kodu strony — reszta (baza danych, panel, zbieranie statystyk) zostaje wyłącznie na serwerze klienta.
 
+## Dodawanie kolejnych stron do tej samej instancji Umami
+
+Jedna instalacja Umami obsługuje dowolną liczbę stron jednocześnie — nie trzeba stawiać osobnego serwera/kontenera dla każdej. Statystyki są w pełni rozdzielone: każda strona ma własny dashboard i własny `data-website-id`, mimo wspólnej bazy danych.
+
+Aby dodać kolejną stronę:
+
+1. W panelu Umami: **Ustawienia → Strony internetowe → Dodaj stronę internetową**.
+2. Podaj nazwę i domenę nowej strony.
+3. Umami wygeneruje nowy tag `<script>` z tym samym `src="https://analytics.mojiphone.pl/script.js"`, ale **innym** `data-website-id`.
+4. Wklej ten tag w `<head>` nowej strony (bezpośrednio w jej kodzie/repo).
+
+**Uwaga o zasobach serwera:** więcej podpiętych stron = więcej zapisów do bazy Postgres. Dla kilku stron wizytówkowych to pomijalne obciążenie, ale przy stronie z realnie dużym ruchem warto obserwować zużycie RAM/CPU kontenera `db` i w razie potrzeby zwiększyć zasoby.
+
 ## Kontrola bezpieczeństwa po instalacji
 
 - [ ] Hasło administratora zmienione z domyślnego.
