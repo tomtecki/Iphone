@@ -1141,6 +1141,67 @@ function handleBotQuestion(question) {
   addChatMessage(response.text, "bot", response);
 }
 
+// Prowadzona ścieżka na start rozmowy: generacja -> wariant -> co się stało.
+// Klient rzadko sam zacznie od trafnego pytania - łatwiej poprowadzić go
+// przyciskami, niż czekać aż wpisze coś, co bot rozpozna.
+const BOT_SYMPTOM_CHIPS = [
+  "Pękł ekran",
+  "Nie ładuje się",
+  "Szybko się rozładowuje",
+  "Zalany",
+  "Nie robi zdjęć"
+];
+
+function promptForBotSymptom() {
+  addChatMessage(`Mam: ${botContextModel.model}. Co się stało z telefonem? Napisz krótko albo wybierz poniżej.`, "bot", {
+    options: [
+      ...BOT_SYMPTOM_CHIPS.map((symptom) => ({
+        label: symptom,
+        onClick: () => handleBotQuestion(symptom)
+      })),
+      {
+        label: "Coś innego — napiszę",
+        onClick: () => {
+          if (chatInput) {
+            chatInput.focus();
+          }
+        }
+      }
+    ]
+  });
+}
+
+function handleBotVariantPick(variant) {
+  addChatMessage(variant.variantLabel, "user");
+  botContextModel = variant;
+  promptForBotSymptom();
+}
+
+function handleBotGenerationPick(generation) {
+  addChatMessage(generation, "user");
+  const variants = PRICE_DATA.filter((entry) => entry.generation === generation);
+  if (variants.length === 1) {
+    botContextModel = variants[0];
+    promptForBotSymptom();
+    return;
+  }
+  addChatMessage(`Który dokładnie wariant ${generation}?`, "bot", {
+    options: variants.map((variant) => ({
+      label: variant.variantLabel,
+      onClick: () => handleBotVariantPick(variant)
+    }))
+  });
+}
+
+function startBotOnboarding() {
+  addChatMessage("Zacznijmy od Twojego telefonu — jaki masz model?", "bot", {
+    options: GENERATIONS.map((generation) => ({
+      label: generation.replace(/^iPhone\s*/i, ""),
+      onClick: () => handleBotGenerationPick(generation)
+    }))
+  });
+}
+
 function renderChatQuickQuestions() {
   if (!chatQuick) {
     return;
@@ -1160,16 +1221,18 @@ function renderChatQuickQuestions() {
 
 if (chatWidget && chatToggle && chatPanel) {
   let chatInitialized = false;
+  let chatUserInteracted = false;
 
-  const openChat = () => {
+  const openChat = ({ focusInput = true } = {}) => {
     chatPanel.removeAttribute("hidden");
     chatToggle.setAttribute("aria-expanded", "true");
     if (!chatInitialized) {
-      addChatMessage("Cześć! Jestem asystentem MojIphone. Możesz pisać krótko, np. „13 wymiana ekranu” — odpowiadam na podstawie treści tej strony.", "bot");
+      addChatMessage("Cześć! Jestem asystentem MojIphone.", "bot");
+      startBotOnboarding();
       renderChatQuickQuestions();
       chatInitialized = true;
     }
-    if (chatInput) {
+    if (chatInput && focusInput) {
       chatInput.focus();
     }
   };
@@ -1180,6 +1243,7 @@ if (chatWidget && chatToggle && chatPanel) {
   };
 
   chatToggle.addEventListener("click", () => {
+    chatUserInteracted = true;
     const isOpen = !chatPanel.hasAttribute("hidden");
     if (isOpen) {
       closeChat();
@@ -1189,7 +1253,10 @@ if (chatWidget && chatToggle && chatPanel) {
   });
 
   if (chatClose) {
-    chatClose.addEventListener("click", closeChat);
+    chatClose.addEventListener("click", () => {
+      chatUserInteracted = true;
+      closeChat();
+    });
   }
 
   if (chatForm && chatInput) {
@@ -1200,6 +1267,14 @@ if (chatWidget && chatToggle && chatPanel) {
       chatInput.focus();
     });
   }
+
+  // Czat ma się pojawić samoczynnie w ciągu 3 s od wejścia na stronę,
+  // ale tylko jeśli klient wcześniej sam go nie otworzył ani nie zamknął.
+  window.setTimeout(() => {
+    if (!chatUserInteracted) {
+      openChat({ focusInput: false });
+    }
+  }, 3000);
 }
 
 window.dataLayer = window.dataLayer || [];
