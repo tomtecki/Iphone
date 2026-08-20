@@ -1121,6 +1121,10 @@ body:not(:has(.chat-widget)) .contact-dock {
   overflow: hidden;
 }
 
+.chat-panel[hidden] {
+  display: none;
+}
+
 .chat-header {
   display: flex;
   align-items: center;
