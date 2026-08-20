@@ -70,6 +70,44 @@ Fundament pod przyszłe kampanie Google Ads per model + linki wewnętrzne (np. `
 
 ---
 
+## 5. Analityka strony (cel: dane do poprawy konwersji)
+
+**Status: do przedyskutowania — potrzebne dane wejściowe od klienta, żeby wdrożyć.**
+
+### Dyskusja zespołu
+
+**Strateg biznesowy:** To jedna z niewielu inwestycji na tej stronie o niemal zerowym koszcie i wysokim zwrocie — bez danych o tym, gdzie klienci rezygnują (np. wybierają model, ale nie dzwonią), każda kolejna zmiana UX to zgadywanie, a nie decyzja oparta na faktach. Rekomendacja: **wdrożyć jak najszybciej**, ale pod jednym twardym warunkiem — zgodność z RODO (patrz uwaga UX/prawna niżej), bo to jedyny realny koszt/ryzyko w tym pomyśle.
+
+**Behawiorysta/CRO:** Kluczowe zdarzenia do śledzenia (lejek konwersji):
+1. Wejście w sekcję cennika,
+2. Wybór generacji → wybór wariantu (gdzie użytkownicy porzucają wybór?),
+3. Wyświetlenie cennika dla modelu,
+4. Klik w "Potwierdź cenę telefonicznie" / inne `tel:` linki,
+5. Wysłanie formularza kontaktowego,
+6. Kliknięcie w link do opinii Google / poradnika o modelu.
+Dziś namiary na to częściowo już istnieją: `script.js` ma gotowy `window.dataLayer.push({event: "cta_clicked", ...})` dla wszystkich elementów `[data-track]` — to fundament pod Google Tag Manager, nie trzeba pisać tego od nowa.
+
+**Architekt:** Rekomenduję **Google Tag Manager (GTM)** jako warstwę pośrednią zamiast wpinania Google Analytics (GA4) bezpośrednio w kod. Różnica: z GTM dodawanie/zmiana tagów (GA4, ewentualnie Meta Pixel, Google Ads conversion tracking) odbywa się w panelu GTM, bez kolejnych zmian w `script.js` — istniejący `dataLayer.push` już jest w formacie, który GTM czyta natywnie. Jedna linijka `<script>` w `index.html`, cała konfiguracja dalej w panelu przeglądarkowym klienta.
+
+**UX / kwestia prawna (RODO):** **Blocker, nie szczegół.** Strona działa w Polsce/UE, GA4/GTM ustawia pliki cookie do śledzenia — zgodnie z RODO i Prawem Telekomunikacyjnym **wymaga to zgody użytkownika (banner cookie) przed załadowaniem skryptów śledzących**, nie po fakcie. Nie da się tego pominąć "bo to tylko analityka" — to wymóg prawny niezależny od intencji. Trzeba dodać banner zgody (odrzuć/akceptuj), a skrypt analityczny ładować dopiero po zgodzie.
+
+**SEO/AEO:** Analityka nie wpływa bezpośrednio na SEO, ale dostarcza danych do priorytetyzacji dalszych zmian (np. które strony/sekcje mają wysoki bounce rate).
+
+**Marketingowiec:** Warto też skonfigurować śledzenie parametrów UTM w GA4 (dla przyszłych kampanii Google Ads powiązanych z mechanizmem `?model=` z punktu 4) — to naturalne domknięcie już wdrożonego mechanizmu.
+
+**Potencjalny klient:** Nie mam nic przeciwko analityce, o ile nie śledzi mnie bez pytania — jasny, prosty banner "Akceptuję/Odrzucam" wystarczy, nie chcę wielostopniowego formularza zgód.
+
+### Rekomendacja zespołu
+
+✅ **Wdrożyć, w tej kolejności:**
+1. Banner zgody na cookie (blokuje ładowanie trackerów do czasu akceptacji) — wymóg prawny, nie opcja.
+2. Google Tag Manager jako warstwa wpinająca (kod strony już generuje zdarzenia w `dataLayer`, gotowe do podłączenia).
+3. W GTM: tag GA4 + zdefiniowane zdarzenia konwersji z listy Behawiorysty wyżej.
+
+**Blokada do wdrożenia:** potrzebny **Container ID z Google Tag Manager** (i/lub Measurement ID z GA4) należący do klienta — to musi założyć klient (konto Google), nie można tego zrobić bez dostępu do jego konta Google.
+
+---
+
 ## Jak korzystać z tego pliku
 
 Każdy nowy pomysł omawiany z zespołem trafia tu jako osobna sekcja: krótki opis, dyskusja poszczególnych ekspertów (w tym stratega biznesowego oceniającego zasadność), rekomendacja i status (✅ wdrożone / ⏸ odłożone / do przedyskutowania).
