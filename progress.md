@@ -1,6 +1,6 @@
 # Progress — strona MojIphone
 
-Ostatnia aktualizacja: 2026-08-21 (poradnik problemów + bot)
+Ostatnia aktualizacja: 2026-08-21 (scalenie: poradnik problemów, bot, polityka prywatności, więcej analityki, dokumentacja)
 
 ## ✅ Zrobione
 
@@ -20,6 +20,8 @@ Ostatnia aktualizacja: 2026-08-21 (poradnik problemów + bot)
 - Miejsce na zdjęcie modelu w panelu cennika (placeholder 📱 do czasu wyboru źródła zdjęć — **nie** wolno używać zdjęć z apple.com, prawa autorskie).
 - `pomysły.md` — zbiorczy log koncepcji dyskutowanych z zespołem (bot/agent leadowy, landing page per model, widget opinii, analityka) z rekomendacjami i statusami.
 - **Asystent-bot (Faza 1, regułowy, bez LLM)** na `index.html`: auto-otwarcie 3 s po wejściu na stronę (chyba że klient sam wcześniej wejdzie w interakcję), prowadzona ścieżka startowa generacja → wariant → objaw (przyciski), rozpoznawanie skrótów bez słowa "iPhone" (np. "13 pro max", "16e"), dopytywanie o wariant przy niejednoznacznej generacji (np. samo "13"), pamięć modelu w rozmowie, normalizacja tekstu bez polskich znaków, odpowiedzi dokładnie per usterka (nie tylko ekran+bateria) z linkami/przyciskami do materiałów. Dokumentacja: `bot-baza-pytan.md`.
+- **`polityka-prywatnosci.html`** — nowa podstrona RODO: administrator danych, cele/podstawy prawne/okresy przechowywania (tabela), analityka (Umami bez cookies), prawa osoby (dostęp/sprostowanie/usunięcie/skarga do UODO). Link w stopce wszystkich stron. **Nie jest to porada prawna** — wymaga przeglądu przez prawnika przed publikacją, brakuje NIP-u firmy (oznaczone w treści jako do uzupełnienia).
+- Formularz kontaktowy: dodana informacja o dobrowolności podania danych + link do polityki, oraz osobny, odznaczony domyślnie **checkbox zgody marketingowej** (opcjonalny, nie blokuje wysyłki formularza).
 - Ikony kontaktu (WhatsApp + telefon) — pływający dok w prawym dolnym rogu na `index.html` i `sprawdz-model-iphone.html`.
 - Faza 2 bota (zbieranie leadów + integracja z systemem obsługującym naprawy) — zaplanowana w `pomysły.md`, jeszcze niezaimplementowana.
 - **`problemy-z-iphone.html`** — poradnik "co zrobić, gdy..." dla 11 najczęstszych problemów (bateria, przegrzewanie, ghost touch, ostrzeżenie o cieczy, wolne działanie, brak sieci, restart co kilka minut/panic-full, brak głosu 12/12 Pro, Touch Disease 6 Plus, Audio IC Disease 7/7 Plus, zielony/biały ekran 13 Pro), źródło: `usterki.md` od klienta. Bezpieczne kroki programowe zostały, ale treści DIY dotyczące otwierania telefonu/lutowania zastąpiono kierowaniem do kontaktu z MojIphone (zgodnie z wcześniejszą zasadą zespołu: diagnoza, nie instrukcja majsterkowania). FAQPage schema dla AEO/AI. Link w nawigacji ("Pomoc") na `index.html` i `sprawdz-model-iphone.html`.
@@ -35,6 +37,8 @@ Ostatnia aktualizacja: 2026-08-21 (poradnik problemów + bot)
 6. **Google Search Console** — pominięte na prośbę klienta (brak dostępu bez podawania danych logowania). Dane firmowe potwierdzane ręcznie przez klienta zamiast przez GSC.
 7. **Kompresja/`srcset`/WebP** dla zdjęć — nadal nie zrobione (zdjęcie hero jest ciężkim PNG ~1,7 MB).
 8. **Docelowy widget Google** zamiast statycznych opinii — opcjonalne, wymaga wyboru narzędzia (Elfsight/EmbedSocial/Trustmary) i prawdopodobnie płatnego planu.
+9. **NIP firmy** brakuje w `polityka-prywatnosci.html` (oznaczone w treści jako do uzupełnienia) — potrzebny przed publikacją.
+10. **Polityka prywatności wymaga przeglądu prawnego** — napisana na podstawie standardowych wymogów RODO, ale to nie jest porada prawna.
 
 ## 🤔 Decyzje do podjęcia przez klienta
 
@@ -55,7 +59,10 @@ Ostatnia aktualizacja: 2026-08-21 (poradnik problemów + bot)
 - `README.md` — przegląd projektu i historia wersji
 - `index.html` — strona główna
 - `sprawdz-model-iphone.html` — poradnik SEO + wybór modelu
-- `polityka-prywatnosci.html` — polityka prywatności RODO (branch `prawne/polityka-prywatnosci`, jeszcze niescalone)
+- `polityka-prywatnosci.html` — polityka prywatności RODO
+- `problemy-z-iphone.html` — poradnik "co zrobić, gdy..." dla 11 najczęstszych problemów, zintegrowany z botem
+- `usterki.md` — materiał źródłowy poradnika problemów, dostarczony przez klienta
+- `analityka.md` — instrukcja instalacji self-hosted Umami i lista śledzonych zdarzeń
 - `styles.css`, `script.js` — style i logika (cennik, drzewo modeli, formularz, nav, bot, analityka)
 - `bot.md` — jak zbudowany jest asystent-bot (dane, dopasowanie, ścieżka startowa)
 - `bot-baza-pytan.md` — baza pytań/przykładowe dialogi bota
