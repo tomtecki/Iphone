@@ -959,7 +959,8 @@ a:focus-visible {
   }
 
   .hero-actions,
-  .button {
+  .hero-actions .button,
+  .reviews-link {
     width: 100%;
   }
 
