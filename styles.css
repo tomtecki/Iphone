@@ -799,6 +799,31 @@ h3 {
   font-style: italic;
 }
 
+/* Strona "Pomoc" (problemy-z-iphone.html): tytuł jest treścią poradnika,
+   nie heroem z tłem jak na stronie głównej - domyślny h1/h2 (skalowany
+   pod duży baner) jest tu za duży i przy dłuższym tytule łamie się
+   w wąskiej kolumnie (max-width: 11ch). Zawężone do tej strony przez
+   klasę na <body>, żeby nie ruszać wyglądu innych podstron. */
+.page-problems h1 {
+  max-width: 32ch;
+  font-size: clamp(2.1rem, 4vw, 3rem);
+}
+
+.page-problems .guide-toc h2,
+.page-problems .guide-numbers h2 {
+  max-width: none;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+}
+
+.page-problems .guide-intro {
+  padding-bottom: 1.5rem;
+}
+
+.page-problems .guide-toc {
+  padding-top: 1.5rem;
+  padding-bottom: 2.5rem;
+}
+
 .area-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
