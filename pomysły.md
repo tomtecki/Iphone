@@ -135,9 +135,25 @@ Pomysł klienta: rozbudować stronę o artykuły diagnostyczne dla najczęstszyc
 
 ## 7. Statystyki użycia bota i archiwizacja rozmów — ocena RODO
 
-**Status: do decyzji klienta.**
+**Status: ✅ punkt 1 rekomendacji wdrożony (2026-08-21, branch `analityka/wiecej-zdarzen-umami`) — zdarzenia w Umami bez treści wiadomości. Punkty 2-3 (archiwizacja treści fallbacków) czekają na decyzję klienta.**
 
-Cel klienta: wiedzieć, co poprawiać w bocie, i rozważyć archiwizację rozmów do "uczenia" bota.
+### Co zaimplementowano
+
+Cel klienta: wiedzieć co oglądał, czy próbował wypełnić formularz, jakich cen szukał, jaki ma telefon — **bez zbierania treści rozmów** (zgodnie z rekomendacją zespołu poniżej).
+
+Nowe zdarzenia w `script.js` (funkcja `trackUmamiEvent`, wywoływana tylko gdy `window.umami` jest dostępne):
+- **`model_selected`** `{ model, source }` — jeden punkt instrumentacji w `selectModel()`, więc łapie wybór modelu niezależnie od ścieżki: `select` (rozwijane listy generacja/wariant), `popular` (popularne modele), `search` (wyszukiwarka), `bot` (bot ustalił model w rozmowie), `url_param` (link z `?model=`). To odpowiada na "jakich cen szukał" i "jaki ma telefon" jednocześnie.
+- **`contact_form_started`** — pierwsza interakcja z formularzem kontaktowym (focus na dowolne pole), jednorazowo.
+- **`contact_form_submitted`** — wysłanie formularza. Celowo **bez treści pól** (imię/telefon/opis usterki to dane osobowe) — liczy się tylko fakt.
+- Wszystkie dotychczasowe `[data-track]` (kliknięcia `tel:`, WhatsApp, otwarcie czatu) — dotąd szły tylko do nieużywanego `window.dataLayer` (relikt po pierwotnym planie GTM/GA4, nigdy nie podłączonym po zmianie na Umami) — teraz idą też do Umami pod tą samą nazwą zdarzenia (np. `phone_hero`, `whatsapp_dock`, `chat_open`).
+
+Odsłony stron (co klient oglądał, w tym `sprawdz-model-iphone.html` vs `index.html`) Umami zbiera automatycznie, bez dodatkowego kodu.
+
+**Jeszcze niezaimplementowane** (osobna decyzja, patrz "Do decyzji klienta" niżej): zdarzenia specyficzne dla bota (`bot_rule_matched`, `bot_fallback`) proponowane przez Architekta niżej — przydatne do wiedzy "co poprawić w bazie bota", ale to inny cel niż ten, o który klient prosił w tej turze (widoczność zachowania klienta), więc odłożone do osobnego zlecenia.
+
+### Do decyzji klienta (część nadal aktualna)
+
+Cel: wiedzieć, co poprawiać w bocie, i rozważyć archiwizację rozmów do "uczenia" bota.
 
 **Zastrzeżenie techniczne:** bot to reguły (Faza 1), nie model językowy — nie ma tu "trenowania" w sensie ML. "Uczenie bota" w praktyce oznacza ręczny przegląd nietrafionych pytań i dopisywanie nowych słów kluczowych do `BOT_RULES`/`BOT_PART_GROUPS`.
 

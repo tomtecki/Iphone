@@ -1,3 +1,12 @@
+// Zdarzenia w Umami (self-hosted, bez cookies) - patrz pomysły.md, sekcja 7.
+// Zasada: śledzimy CO klient zrobił (model/cena/formularz/kontakt), nigdy
+// treść tego, co napisał - żeby nie zbierać danych osobowych bez potrzeby.
+function trackUmamiEvent(eventName, eventData) {
+  if (typeof window !== "undefined" && window.umami && typeof window.umami.track === "function") {
+    window.umami.track(eventName, eventData);
+  }
+}
+
 const navToggle = document.querySelector("[data-nav-toggle]");
 const nav = document.querySelector("[data-nav]");
 
@@ -535,6 +544,7 @@ function selectModel(item, options = {}) {
   renderPopularModels();
   syncSelects();
   renderPrices(item);
+  trackUmamiEvent("model_selected", { model: item.model, source: options.source || "unknown" });
   if (!options.skipScroll && pricePanel && window.matchMedia("(max-width: 900px)").matches) {
     pricePanel.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -605,7 +615,7 @@ if (variantSelect) {
   variantSelect.addEventListener("change", () => {
     const item = PRICE_DATA.find((entry) => entry.model === variantSelect.value);
     if (item) {
-      selectModel(item, { skipScroll: true });
+      selectModel(item, { skipScroll: true, source: "select" });
     }
   });
 }
@@ -651,7 +661,7 @@ function renderPopularModels() {
     button.type = "button";
     button.className = `model-button${item.model === activeModel ? " is-active" : ""}`;
     button.textContent = item.model;
-    button.addEventListener("click", () => selectModel(item));
+    button.addEventListener("click", () => selectModel(item, { source: "popular" }));
     popularModelsList.append(button);
   });
 }
@@ -671,7 +681,7 @@ function renderModelList(filter = "") {
     button.type = "button";
     button.className = `model-button${item.model === activeModel ? " is-active" : ""}`;
     button.textContent = item.model;
-    button.addEventListener("click", () => selectModel(item));
+    button.addEventListener("click", () => selectModel(item, { source: "search" }));
     modelList.append(button);
   });
 }
@@ -749,6 +759,7 @@ syncSelects();
 renderPrices(preselectedModel || undefined);
 
 if (preselectedModel && pricePanel) {
+  trackUmamiEvent("model_selected", { model: preselectedModel.model, source: "url_param" });
   pricePanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -756,8 +767,13 @@ const contactForm = document.querySelector("[data-contact-form]");
 const formNote = document.querySelector("[data-form-note]");
 
 if (contactForm && formNote) {
+  contactForm.addEventListener("focusin", () => trackUmamiEvent("contact_form_started"), { once: true });
+
   contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    // Zdarzenie bez treści pól - imię/telefon/opis usterki to dane osobowe,
+    // do analityki liczy się tylko sam fakt wysłania formularza.
+    trackUmamiEvent("contact_form_submitted");
     formNote.textContent = "Dziękujemy. Aby najszybciej potwierdzić termin mobilnego serwisu, zadzwoń: 570 222 345.";
   });
 }
@@ -1069,7 +1085,7 @@ let botContextModel = null;
 function answerForResolvedModel(item, partMatch) {
   return {
     text: partMatch ? formatPartAnswer(item, partMatch) : formatGeneralAnswer(item),
-    action: () => selectModel(item)
+    action: () => selectModel(item, { source: "bot" })
   };
 }
 
@@ -1344,10 +1360,14 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  const ctaId = target.getAttribute("data-track");
+
   window.dataLayer.push({
     event: "cta_clicked",
-    cta_id: target.getAttribute("data-track"),
+    cta_id: ctaId,
     cta_text: target.textContent.trim(),
     page_location: window.location.href
   });
+
+  trackUmamiEvent(ctaId);
 });
