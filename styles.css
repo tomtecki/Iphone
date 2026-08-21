@@ -209,18 +209,18 @@ h3 {
 }
 
 h1 {
-  max-width: 11ch;
-  font-size: clamp(3rem, 8vw, 6.5rem);
+  max-width: 22ch;
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
   font-weight: 850;
 }
 
 h2 {
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
   font-weight: 820;
 }
 
 h3 {
-  font-size: 1.16rem;
+  font-size: 1.1rem;
 }
 
 .hero-lead {
@@ -799,22 +799,10 @@ h3 {
   font-style: italic;
 }
 
-/* Strona "Pomoc" (problemy-z-iphone.html): tytuł jest treścią poradnika,
-   nie heroem z tłem jak na stronie głównej - domyślny h1/h2 (skalowany
-   pod duży baner) jest tu za duży i przy dłuższym tytule łamie się
-   w wąskiej kolumnie (max-width: 11ch). Zawężone do tej strony przez
-   klasę na <body>, żeby nie ruszać wyglądu innych podstron. */
-.page-problems h1 {
-  max-width: 32ch;
-  font-size: clamp(2.1rem, 4vw, 3rem);
-}
-
-.page-problems .guide-toc h2,
-.page-problems .guide-numbers h2 {
-  max-width: none;
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
-}
-
+/* Strona "Pomoc" (problemy-z-iphone.html): rozmiar h1/h2 jest już
+   ustawiony globalnie (patrz reguły h1/h2 wyżej). Zostają tylko
+   odstępy między intro a spisem treści, żeby nie wyglądały jak dwa
+   osobne, rozjechane bloki. */
 .page-problems .guide-intro {
   padding-bottom: 1.5rem;
 }
@@ -1022,10 +1010,6 @@ a:focus-visible {
 
   .hero {
     min-height: 76vh;
-  }
-
-  h1 {
-    max-width: 12ch;
   }
 }
 
