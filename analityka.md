@@ -106,6 +106,21 @@ Aby dodać kolejną stronę:
 
 **Uwaga o zasobach serwera:** więcej podpiętych stron = więcej zapisów do bazy Postgres. Dla kilku stron wizytówkowych to pomijalne obciążenie, ale przy stronie z realnie dużym ruchem warto obserwować zużycie RAM/CPU kontenera `db` i w razie potrzeby zwiększyć zasoby.
 
+## Zdarzenia niestandardowe śledzone na stronie (od 2026-08-21)
+
+Poza automatycznymi odsłonami stron, `script.js` wysyła do Umami dodatkowe zdarzenia (widoczne w panelu Umami → zakładka "Zdarzenia"):
+
+| Zdarzenie | Kiedy się zdarza | Dane |
+|---|---|---|
+| `model_selected` | Klient wybrał/zobaczył cennik dla konkretnego modelu | `model` (nazwa), `source` (`select`/`popular`/`search`/`bot`/`url_param`) |
+| `contact_form_started` | Pierwsza interakcja z formularzem kontaktowym | — |
+| `contact_form_submitted` | Wysłanie formularza | — (celowo bez treści pól — dane osobowe) |
+| `phone_hero`, `phone_header`, `phone_footer`, `phone_contact`, `phone_price_panel`, `phone_chat`, `phone_dock`, `phone_guide` | Kliknięcie danego linku `tel:` | — |
+| `whatsapp_dock` | Kliknięcie ikony WhatsApp | — |
+| `chat_open` | Otwarcie widżetu asystenta | — |
+
+Żadne z tych zdarzeń nie zawiera treści wpisanej przez klienta (imię, telefon, opis usterki, pytania do bota) — zgodnie z decyzją zespołu w `pomysły.md` (sekcja 7), żeby nie zbierać danych osobowych bez wyraźnej potrzeby i polityki prywatności.
+
 ## Kontrola bezpieczeństwa po instalacji
 
 - [ ] Hasło administratora zmienione z domyślnego.
