@@ -115,6 +115,51 @@ Klient ma własny serwer i woli hostować analitykę samodzielnie. Zespół omó
 
 ---
 
+## 6. Baza wiedzy o typowych problemach iPhone (karmi bota i SEO)
+
+**Status: pomysł, niezaimplementowany.**
+
+Pomysł klienta: rozbudować stronę o artykuły diagnostyczne dla najczęstszych problemów (telefon zalany, ekran miga/zmienia kolory, słabo trzyma baterię itd.), i użyć tej samej wiedzy do zasilenia bazy bota.
+
+**SEO/AEO:** Mocny kierunek — długi ogon zapytań diagnostycznych ("ekran iphone miga co robić") ma niską konkurencję komercyjną i jest dokładnie tym, co AI Overview/ChatGPT/Perplexity lubią cytować (treść rzetelna, nie sprzedażowa).
+
+**Architekt:** Rekomendacja: jedno źródło danych (tablica `PROBLEMS` w `script.js`, analogicznie do `PRICE_DATA`), z którego generuje się **jednocześnie** stronę z artykułami i regułę bota (`BOT_RULES`/`BOT_PART_GROUPS`) — inaczej baza strony i baza bota rozjadą się z czasem przy ręcznej synchronizacji.
+
+**Marketingowiec/UX:** Treść ma być diagnozą ("co to zwykle oznacza"), nie instrukcją majsterkowania — zgodnie z wcześniejszą zasadą zespołu (ryzyko: klient sam coś sobie uszkodzi, winą obarczy serwis).
+
+**Behawiorysta/CRO:** Domyka lejek: objaw → artykuł → cennik dla wykrytego modelu (przez istniejący mechanizm `?model=`) → telefon/formularz.
+
+**Werdykt zespołu:** ✅ warto budować, jako wspólne źródło danych dla strony i bota, nie dwa osobne byty.
+
+---
+
+## 7. Statystyki użycia bota i archiwizacja rozmów — ocena RODO
+
+**Status: do decyzji klienta.**
+
+Cel klienta: wiedzieć, co poprawiać w bocie, i rozważyć archiwizację rozmów do "uczenia" bota.
+
+**Zastrzeżenie techniczne:** bot to reguły (Faza 1), nie model językowy — nie ma tu "trenowania" w sensie ML. "Uczenie bota" w praktyce oznacza ręczny przegląd nietrafionych pytań i dopisywanie nowych słów kluczowych do `BOT_RULES`/`BOT_PART_GROUPS`.
+
+**Architekt:** Rekomendacja: śledzić **zdarzenia w Umami** (już zainstalowanym, self-hosted, bez cookies), nie treść rozmów: `bot_rule_matched` (jaki temat), `bot_fallback` (pytanie nietrafione — najcenniejszy sygnał), `bot_part_asked`, `bot_onboarding_step`. To mówi, co poprawiać, bez zbierania treści wiadomości.
+
+**Strateg biznesowy / RODO — trzy poziomy ryzyka:**
+
+| Co zbieramy | Ryzyko RODO | Rekomendacja |
+|---|---|---|
+| Zanonimizowane zdarzenia (temat/fallback, bez treści wiadomości) | Brak — nie są to dane osobowe | ✅ Wdrożyć od razu |
+| Treść tylko nietrafionych pytań (fallback), bez ID sesji/IP | Niskie, ale realne (klient może wpisać nr telefonu/imię w wolnym tekście) | ⚠️ Możliwe pod warunkiem: krótka retencja (np. 30 dni), własny serwer, wpis w polityce prywatności |
+| Pełne archiwum wszystkich rozmów | Wysokie — systematyczne przetwarzanie potencjalnych danych osobowych | ❌ Niepolecane bez wyraźnej potrzeby i podstawy prawnej |
+
+**Krytyczny brak niezależnie od decyzji:** strona **nie ma dziś polityki prywatności** — warunek konieczny przed zbieraniem czegokolwiek więcej niż anonimowe zdarzenia Umami.
+
+**Rekomendacja zespołu:**
+1. Teraz: zdarzenia w Umami bez treści wiadomości — zero ryzyka.
+2. Jeśli klient chce też widzieć treść nietrafionych pytań: logować tylko fallbacki, krótka retencja, własny serwer, **najpierw** dodać podstawową politykę prywatności.
+3. Nie archiwizować pełnych rozmów — nieproporcjonalne ryzyko względem korzyści ponad punkt 2.
+
+---
+
 ## Jak korzystać z tego pliku
 
 Każdy nowy pomysł omawiany z zespołem trafia tu jako osobna sekcja: krótki opis, dyskusja poszczególnych ekspertów (w tym stratega biznesowego oceniającego zasadność), rekomendacja i status (✅ wdrożone / ⏸ odłożone / do przedyskutowania).
