@@ -50,9 +50,13 @@ Ostatnia aktualizacja: 2026-08-20 (asystent-bot)
 
 ## 📂 Struktura plików
 
+- `README.md` — przegląd projektu i historia wersji
 - `index.html` — strona główna
 - `sprawdz-model-iphone.html` — poradnik SEO + wybór modelu
-- `styles.css`, `script.js` — style i logika (cennik, drzewo modeli, formularz, nav)
+- `polityka-prywatnosci.html` — polityka prywatności RODO (branch `prawne/polityka-prywatnosci`, jeszcze niescalone)
+- `styles.css`, `script.js` — style i logika (cennik, drzewo modeli, formularz, nav, bot, analityka)
+- `bot.md` — jak zbudowany jest asystent-bot (dane, dopasowanie, ścieżka startowa)
+- `bot-baza-pytan.md` — baza pytań/przykładowe dialogi bota
 - `zdjeciaprompt.md` — prompty do generowania zdjęć
 - `assets/` — obrazy użyte na stronie
 - `zdjęcia/` — oryginalne pliki przesłane przez klienta (źródło dla `assets/`)
