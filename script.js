@@ -860,6 +860,81 @@ const BOT_RULES = [
   }
 ];
 
+// Poradnik "co zrobić, gdy..." - te same treści co na problemy-z-iphone.html
+// (patrz usterki.md - źródło). Rozpoznaje pytania ogólne o objawy (bez podanego
+// modelu ani intencji cenowej) i kieruje do właściwej sekcji poradnika, zamiast
+// od razu pytać o model albo cenę.
+// Słowa kluczowe to rdzenie wyrazów (np. "rozładowuj" zamiast "rozładowuje się"),
+// bo szyk zdania w polskim jest zbyt zmienny na sztywne frazy - "iPhone się grzeje"
+// i "grzeje się telefon" muszą trafić w tę samą regułę.
+const BOT_PROBLEM_TOPICS = [
+  {
+    keywords: ["rozładowuj", "rozladowuj", "traci baterie", "słabo trzyma", "slabo trzyma", "kondycja baterii", "pojemność baterii", "pojemnosc baterii"],
+    summary: "Sprawdź kondycję baterii w Ustawieniach → Bateria → Kondycja baterii. Poniżej 80% pojemności warto ją wymienić.",
+    href: "problemy-z-iphone.html#bateria",
+    label: "Pełna instrukcja: szybko rozładowująca się bateria"
+  },
+  {
+    keywords: ["grze", "przegrzew", "gorąc", "gorac", "rozgrzan"],
+    summary: "Odłącz od ładowarki, zdejmij etui i przenieś telefon w chłodne miejsce. Nigdy nie wkładaj go do lodówki.",
+    href: "problemy-z-iphone.html#przegrzewanie",
+    label: "Pełna instrukcja: telefon się grzeje"
+  },
+  {
+    keywords: ["ghost touch", "klika", "duch dotyku", "sam się otwiera", "sam sie otwiera", "sam wybiera", "wariuje ekran", "szaleje ekran"],
+    summary: "Przetrzyj ekran, zdejmij dodatkowe szkło ochronne i zrób twardy restart. Jeśli nie pomoże, zwykle to pęknięcie pod szybką po upadku.",
+    href: "problemy-z-iphone.html#ghost-touch",
+    label: "Pełna instrukcja: ekran sam coś klika"
+  },
+  {
+    keywords: ["ostrzeżenie o cieczy", "ostrzezenie o cieczy", "wykryto płyn", "wykryto plyn", "ciecz w złączu", "ciecz w zlaczu", "wilgoć w porcie", "wilgoc w porcie"],
+    summary: "Odłącz kabel, nie wkładaj telefonu do ryżu, nie susz suszarką. Zostaw w suchym miejscu na kilka godzin.",
+    href: "problemy-z-iphone.html#zalanie",
+    label: "Pełna instrukcja: ostrzeżenie o cieczy w złączu"
+  },
+  {
+    keywords: ["zamyka", "wolno działa", "wolno dziala", "muli", "zawiesz", "mało pamięci", "malo pamieci", "brak miejsca", "brak pamięci", "brak pamieci"],
+    summary: "Sprawdź wolne miejsce w Ustawieniach → Ogólne → iPhone (pamięć), usuń zbędne pliki i zaktualizuj aplikacje oraz iOS.",
+    href: "problemy-z-iphone.html#pamiec",
+    label: "Pełna instrukcja: telefon wolno działa"
+  },
+  {
+    keywords: ["brak sieci", "szare wifi", "nie działa wifi", "nie dziala wifi", "nie działa bluetooth", "nie dziala bluetooth", "zgubił zasięg", "zgubil zasieg", "bez zasięgu", "bez zasiegu"],
+    summary: "Wyjmij i włóż ponownie kartę SIM. Jeśli WiFi/Bluetooth nadal się nie włącza, zresetuj ustawienia sieciowe w Ustawieniach.",
+    href: "problemy-z-iphone.html#siec",
+    label: "Pełna instrukcja: brak sieci, WiFi lub Bluetooth"
+  },
+  {
+    keywords: ["restartuje się co", "restartuje sie co", "wyłącza się co kilka minut", "wylacza sie co kilka minut", "panic-full", "panic full", "sam się wyłącza", "sam sie wylacza"],
+    summary: "To zwykle fizyczne uszkodzenie taśmy wewnątrz telefonu (często po upadku) — nie da się tego naprawić samodzielnie.",
+    href: "problemy-z-iphone.html#restart-co-3-minuty",
+    label: "Pełna instrukcja: telefon restartuje się co kilka minut"
+  },
+  {
+    keywords: ["nikt mnie nie słyszy", "nikt mnie nie slyszy", "brak głosu podczas rozmowy", "brak glosu podczas rozmowy", "nie słychać mnie", "nie slychac mnie", "nie słyszą mnie", "nie slysza mnie"],
+    summary: "Dla iPhone 12 i 12 Pro (bez mini/Pro Max) z wadą fabryczną głośnika Apple prowadzi darmowy program naprawczy przez Autoryzowany Serwis Apple.",
+    href: "problemy-z-iphone.html#brak-glosu-12",
+    label: "Pełna instrukcja: brak głosu podczas rozmów"
+  },
+  {
+    keywords: ["dyktafon nie nagrywa", "audio ic", "cichy głośnik i długo się włącza", "cichy glosnik i dlugo sie wlacza"],
+    summary: "To znana wada płyty głównej w iPhone 7/7 Plus (Audio IC Disease) — wymaga specjalistycznej naprawy, nie da się jej naprawić w domu.",
+    href: "problemy-z-iphone.html#audio-ic-7",
+    label: "Pełna instrukcja: dyktafon nie nagrywa, cichy głośnik"
+  },
+  {
+    keywords: ["zielony ekran", "biały ekran", "bialy ekran", "nie widać obrazu", "nie widac obrazu", "zzieleniał", "zzielenial"],
+    summary: "Zrób twardy restart. Jeśli ekran nadal jest zielony/biały mimo że telefon reaguje, to zwykle wada fabryczna sterownika ekranu w iPhone 13 Pro/Pro Max.",
+    href: "problemy-z-iphone.html#zielony-ekran-13pro",
+    label: "Pełna instrukcja: zielony lub biały ekran"
+  }
+];
+
+function findBotProblemMatch(message) {
+  const normalized = normalizeBotText(message);
+  return BOT_PROBLEM_TOPICS.find((topic) => topic.keywords.some((keyword) => normalized.includes(normalizeBotText(keyword)))) || null;
+}
+
 // Mapa usterek na klucze z PRICE_DATA/SERVICES - żeby bot odpowiadał dokładnie
 // na zapytaną część, a nie zawsze podsumowaniem ekran+bateria. Oprócz nazw usług
 // (np. "ekran") rozpoznaje też opisy objawów, jak realnie pisze klient
@@ -1001,6 +1076,17 @@ function answerForResolvedModel(item, partMatch) {
 function getBotAnswer(message) {
   const resolved = resolveBotModel(message);
   const partMatch = findBotPartMatch(message);
+  const containsPriceIntent = /cena|koszt|ile kosztuje|wycena/i.test(message);
+
+  // Pytania ogólne o objaw ("się grzeje", "sam klika") bez podanego modelu
+  // i bez intencji cenowej trafiają najpierw do poradnika - klient dostaje
+  // diagnozę i bezpieczne kroki, zanim zaczniemy mówić o cenach.
+  if (!resolved && !containsPriceIntent) {
+    const problemMatch = findBotProblemMatch(message);
+    if (problemMatch) {
+      return { text: problemMatch.summary, link: { href: problemMatch.href, label: problemMatch.label } };
+    }
+  }
 
   // Sama generacja bez wariantu (np. "13") ma kilka różnych cen - dopytaj,
   // zamiast zgadywać, zanim cokolwiek policzysz.
@@ -1037,8 +1123,7 @@ function getBotAnswer(message) {
     return answerForResolvedModel(explicitModel, null);
   }
 
-  const containsPriceKeyword = /cena|koszt|ile kosztuje|wycena/i.test(message);
-  if (containsPriceKeyword) {
+  if (containsPriceIntent) {
     if (contextModel) {
       return answerForResolvedModel(contextModel, null);
     }
