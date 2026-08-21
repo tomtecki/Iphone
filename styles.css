@@ -723,6 +723,56 @@ h3 {
   gap: 0.6rem;
 }
 
+.policy-content {
+  display: grid;
+  gap: 2rem;
+  max-width: 760px;
+}
+
+.policy-content h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.15rem;
+}
+
+.policy-content p {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+}
+
+.policy-content p:last-child {
+  margin-bottom: 0;
+}
+
+.policy-content ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+
+.policy-content li {
+  margin-bottom: 0.4rem;
+}
+
+.policy-table {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.policy-table th,
+.policy-table td {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.policy-table th {
+  color: var(--blue-deep);
+  background: #f1f8ff;
+}
+
 .guide-model-grid .model-button {
   display: flex;
   align-items: center;
@@ -862,6 +912,34 @@ a:focus-visible {
   font-size: 0.9rem;
 }
 
+.form-privacy-note {
+  margin: -0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.form-privacy-note a {
+  color: var(--blue-deep);
+  font-weight: 700;
+}
+
+.consent-checkbox {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  gap: 0.6rem;
+  font-weight: 400;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.consent-checkbox input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 0.15rem;
+}
+
 .site-footer {
   display: flex;
   justify-content: space-between;
@@ -877,6 +955,15 @@ a:focus-visible {
   font-weight: 750;
   text-align: right;
   text-decoration: none;
+}
+
+.site-footer .footer-privacy-link {
+  display: inline;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: underline;
 }
 
 @media (max-width: 900px) {
