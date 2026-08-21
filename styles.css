@@ -729,6 +729,69 @@ h3 {
   text-decoration: none;
 }
 
+.problems-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.problem-item {
+  padding: 1.5rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 30px rgba(17, 32, 51, 0.06);
+}
+
+.problem-item h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+  scroll-margin-top: 96px;
+}
+
+.problem-models {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.problem-item ol {
+  margin: 0 0 1rem;
+  padding-left: 1.3rem;
+  color: var(--muted);
+}
+
+.problem-item li {
+  margin-bottom: 0.5rem;
+}
+
+.problem-item > p {
+  color: var(--muted);
+}
+
+.problem-warning {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  color: #7a4a00;
+  background: #fff6e6;
+  border: 1px solid #f4d9a0;
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+.problem-callout {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  color: var(--ink);
+  background: var(--mint-soft);
+  border: 1px solid #98d7c2;
+  border-radius: var(--radius);
+}
+
+.problem-callout a {
+  color: var(--blue-deep);
+  font-weight: 700;
+}
+
 .area-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -1,6 +1,6 @@
 # Progress — strona MojIphone
 
-Ostatnia aktualizacja: 2026-08-20 (asystent-bot)
+Ostatnia aktualizacja: 2026-08-21 (poradnik problemów + bot)
 
 ## ✅ Zrobione
 
@@ -22,6 +22,8 @@ Ostatnia aktualizacja: 2026-08-20 (asystent-bot)
 - **Asystent-bot (Faza 1, regułowy, bez LLM)** na `index.html`: auto-otwarcie 3 s po wejściu na stronę (chyba że klient sam wcześniej wejdzie w interakcję), prowadzona ścieżka startowa generacja → wariant → objaw (przyciski), rozpoznawanie skrótów bez słowa "iPhone" (np. "13 pro max", "16e"), dopytywanie o wariant przy niejednoznacznej generacji (np. samo "13"), pamięć modelu w rozmowie, normalizacja tekstu bez polskich znaków, odpowiedzi dokładnie per usterka (nie tylko ekran+bateria) z linkami/przyciskami do materiałów. Dokumentacja: `bot-baza-pytan.md`.
 - Ikony kontaktu (WhatsApp + telefon) — pływający dok w prawym dolnym rogu na `index.html` i `sprawdz-model-iphone.html`.
 - Faza 2 bota (zbieranie leadów + integracja z systemem obsługującym naprawy) — zaplanowana w `pomysły.md`, jeszcze niezaimplementowana.
+- **`problemy-z-iphone.html`** — poradnik "co zrobić, gdy..." dla 11 najczęstszych problemów (bateria, przegrzewanie, ghost touch, ostrzeżenie o cieczy, wolne działanie, brak sieci, restart co kilka minut/panic-full, brak głosu 12/12 Pro, Touch Disease 6 Plus, Audio IC Disease 7/7 Plus, zielony/biały ekran 13 Pro), źródło: `usterki.md` od klienta. Bezpieczne kroki programowe zostały, ale treści DIY dotyczące otwierania telefonu/lutowania zastąpiono kierowaniem do kontaktu z MojIphone (zgodnie z wcześniejszą zasadą zespołu: diagnoza, nie instrukcja majsterkowania). FAQPage schema dla AEO/AI. Link w nawigacji ("Pomoc") na `index.html` i `sprawdz-model-iphone.html`.
+- Bot rozpoznaje teraz też pytania objawowe bez podanego modelu (np. "iPhone się grzeje") i kieruje do właściwej sekcji `problemy-z-iphone.html` (`BOT_PROBLEM_TOPICS` w `script.js`) — sprawdzane przed pytaniem o model/cenę, żeby klient dostał diagnozę zamiast od razu być pytanym o model.
 
 ## ⚠️ Brakuje / blokuje publikację
 
