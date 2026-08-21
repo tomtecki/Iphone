@@ -740,12 +740,12 @@ h3 {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: 0 12px 30px rgba(17, 32, 51, 0.06);
+  scroll-margin-top: 96px;
 }
 
 .problem-item h3 {
   margin: 0 0 0.5rem;
   font-size: 1.3rem;
-  scroll-margin-top: 96px;
 }
 
 .problem-models {
@@ -790,6 +790,13 @@ h3 {
 .problem-callout a {
   color: var(--blue-deep);
   font-weight: 700;
+}
+
+.problem-disclaimer {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-style: italic;
 }
 
 .area-list {
