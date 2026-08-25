@@ -40,6 +40,10 @@ Nowe frazy objawowe dodane do `BOT_PART_GROUPS` (przykłady): "pękł/rozbity/cz
 | Faktura | "faktura", "rachunek" | Tak, dokument sprzedaży | → FAQ |
 | Gwarancja | "gwarancja" | Obowiązuje, warunki przy wycenie | → tel. |
 | Kontakt ogólny | "telefon", "kontakt", "numer" | Numer + link `tel:` | → tel. |
+| **Zamiennik vs oryginał** | "zamiennik czy oryginał", "różnica między częściami", "co to jest zamiennik" | Zamiennik = kompatybilna, tańsza część; oryginał = część Apple, droższa, pełna zgodność funkcji (np. True Tone) | → cennik (obie ceny obok siebie) |
+| Powitanie | "cześć", "hej", "dzień dobry" | Krótkie powitanie + od razu przyciski z listą generacji (skrót do ścieżki startowej) | przyciski generacji |
+| Podziękowanie | "dzięki", "dziękuję" | "Nie ma za co!" — bez linku, kończy wątek naturalnie | — |
+| "Czy to bot?" | "jesteś botem", "sztuczna inteligencja", "kim jesteś" | Jawne przyznanie, że to automatyczny asystent bez AI, z numerem do człowieka | → tel. |
 
 ## Baza modeli i usterek (dynamiczna, z `PRICE_DATA`)
 
@@ -85,3 +89,11 @@ Ten sam efekt (elastyczne rozpoznawanie skrótów, dopytywanie, pamięć konteks
 
 ✅ Zaimplementowane w `script.js` na branchu `bot/faza1-qa-regulowy` (nie wypchnięte na GitHub na życzenie klienta — czeka na potwierdzenie).
 Zweryfikowane lokalnie (symulacja logiki poza przeglądarką) dla scenariuszy: "13 wymiana ekranu" → dopytanie o wariant, "15 pro cena baterii" → bezpośrednia odpowiedź, "a bateria?" po ustaleniu modelu → użycie pamięci kontekstu.
+
+### Aktualizacja (2026-08-25): dopracowanie rozmowy + nowy temat + śledzenie skuteczności
+
+- **Powitania/podziękowania/"czy jesteś botem"** dodane do `BOT_RULES` — wcześniej bot nie miał gotowej odpowiedzi na "cześć" czy "dzięki" i trafiał od razu w ogólny fallback.
+- **Fallback rozbudowany** — zamiast samego "zadzwoń albo napisz przez formularz", bot teraz wymienia, z czym może pomóc (cennik, dojazd, godziny, zalanie, gwarancja, zamiennik vs oryginał), zanim odeśle do telefonu/formularza.
+- **Nowy temat: zamiennik vs oryginał** (priorytet klienta) — ta sama treść dodana też jako pozycja FAQ na `index.html` (widoczna + w schemacie `FAQPage`), żeby bot i strona mówiły jednym głosem (wzorzec z `pomysły.md`, sekcja 6).
+- **Zdarzenia Umami dla bota** (`bot_rule_matched`, `bot_part_asked`, `bot_model_missing`, `bot_problem_matched`, `bot_generation_ambiguous`, `bot_onboarding_step`, `bot_fallback`) — domyka rekomendację Architekta z `pomysły.md` sekcja 7, dotąd odłożoną. Bez treści wiadomości klienta, patrz `bot.md`.
+- Zweryfikowane lokalnie przez uruchomienie `script.js` w Node (`vm` + stuby `document`/`window`) dla: "cześć", "dzięki wielkie", "kim jesteś", "czym się różni zamiennik od oryginału", "13 pro cena baterii", zapytanie nierozpoznane — wszystkie odpowiedzi i zdarzenia Umami poprawne.

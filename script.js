@@ -795,84 +795,126 @@ function normalizeBotText(text) {
 
 const BOT_RULES = [
   {
+    id: "czas-naprawy",
     keywords: ["ile trwa", "jak długo", "czas naprawy", "kiedy będzie gotowe", "ile czasu", "trwa naprawa", "trwa wymiana"],
     answer: "Najczęściej naprawa jest możliwa tego samego dnia, jeśli część jest dostępna. Przy rzadszych modelach termin potwierdzamy telefonicznie.",
     link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
+    id: "dojazd",
     keywords: ["dojazd", "dojeżdżacie", "obszar", "twoje miasto", "moje miasto", "przyjedziecie", "jakich miast", "do jakich miast", "docie", "dojechać", "dojechac", "obsługujecie"],
     answer: "Dojazd na terenie Rybnika jest wliczony w cenę. Obsługujemy też Żory, Wodzisław Śląski, Jastrzębie-Zdrój, Gliwice i Katowice — koszt dojazdu dla tych miast potwierdzamy telefonicznie.",
     link: { href: "#obszar", label: "Zobacz obsługiwane lokalizacje" }
   },
   {
+    id: "godziny",
     keywords: ["godziny", "kiedy otwarte", "czynne", "pracujecie", "godzin pracy"],
     answer: "Pracujemy pon.–pt. 9:00–18:00 oraz w soboty 10:00–14:00.",
     link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
   },
   {
+    id: "miejsce-naprawy",
     keywords: ["w domu", "u mnie", "gdzie naprawa", "gdzie odbywa"],
     answer: "Nie trzeba nikogo wpuszczać do domu ani biura — naprawa odbywa się w specjalnie przystosowanym samochodzie serwisowym pod wskazanym adresem.",
     link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
+    id: "zalanie",
     keywords: ["zalanie", "zalany", "woda", "wpadł do wody", "wpadł w wodę"],
     answer: "Nie podłączaj zalanego telefonu do ładowarki. Wykonujemy diagnostykę po zalaniu — im szybciej trafi do nas telefon, tym większa szansa na ograniczenie szkód.",
     link: { href: "#naprawy", label: "Zobacz usługę diagnostyki po zalaniu" }
   },
   {
+    id: "nieznany-model",
     keywords: ["nie znam modelu", "nie wiem jaki mam", "jaki to model"],
     answer: "Nie musisz znać dokładnego modelu z góry — sprawdzimy go na miejscu, albo skorzystaj z naszego poradnika.",
     link: { href: "sprawdz-model-iphone.html", label: "Otwórz poradnik: jak sprawdzić model" }
   },
   {
+    id: "dane-kopia-zapasowa",
     keywords: ["dane", "kasujecie dane", "utracę dane", "kopia zapasowa"],
     answer: "Standardowe naprawy mechaniczne nie wymagają kasowania danych. Mimo to warto mieć aktualną kopię zapasową, zwłaszcza przy zalaniu lub problemach z płytą.",
     link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
+    id: "faktura",
     keywords: ["faktura", "dokument sprzedaży", "rachunek"],
     answer: "Tak, po naprawie możemy wystawić dokument sprzedaży. Dane do faktury najlepiej podać przy przyjęciu telefonu.",
     link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
+    id: "gwarancja",
     keywords: ["gwarancj"],
     answer: "Na wykonane naprawy obowiązuje gwarancja — dokładne warunki potwierdzimy przy wycenie telefonicznej.",
     link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
   },
   {
+    id: "kontakt",
     keywords: ["telefon", "numer", "kontakt", "zadzwonić"],
     answer: "Zadzwoń: 570 222 345 — to najszybsza droga do wyceny i umówienia terminu.",
     link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
   },
   {
+    id: "przygotowanie-do-wizyty",
     keywords: ["przygotować", "co zabrać", "kod odblokowania", "backup przed", "przed wizytą", "przed naprawą co"],
     answer: "Jeśli to możliwe, wykonaj kopię zapasową, wyłącz blokady ograniczające testy i zabierz kod odblokowania albo zostań na miejscu podczas testowania funkcji.",
     link: { href: "#faq", label: "Zobacz pełne FAQ" }
   },
   {
+    id: "zakres-uslug",
     keywords: ["co naprawiacie", "jakie naprawy", "jakie usługi", "co robicie", "zakres napraw", "czym się zajmujecie"],
     answer: "Naprawiamy: ekran/szybkę, baterię, złącze ładowania, aparat/głośnik/mikrofon, usterki po zalaniu i po upadku.",
     link: { href: "#naprawy", label: "Zobacz wszystkie usługi" }
   },
   {
+    id: "proces-naprawy",
     keywords: ["jak wygląda wizyta", "jak to działa", "jak zamówić", "jak umówić", "proces naprawy", "jak się umówić", "jak zgłosić"],
     answer: "Trzy kroki: opisujesz objaw (telefon lub formularz), technik ocenia usterkę i podaje wycenę, naprawa zaczyna się po Twojej zgodzie.",
     link: { href: "#proces", label: "Zobacz pełny proces" }
   },
   {
+    id: "upadek",
     keywords: ["upadek", "upadł", "spadł", "wypadł z ręki", "stłuczony telefon"],
     answer: "Po upadku sprawdzamy ekran, ramkę, aparat, ładowanie, anteny i inne elementy, które mogły ucierpieć nawet wtedy, gdy telefon wygląda dobrze.",
     link: { href: "#naprawy", label: "Zobacz usługę" }
   },
   {
+    id: "opinie",
     keywords: ["opinie", "recenzje", "referencje", "czy macie opinie"],
     answer: "4,9/5 na podstawie 164 opinii Google — prawdziwe recenzje klientów są na tej stronie.",
     link: { href: "#opinie", label: "Zobacz opinie" }
   },
   {
+    id: "formularz",
     keywords: ["formularz", "zgłoszenie wyślij", "napisać zamiast dzwonić"],
     answer: "Formularz kontaktowy jest na dole strony — podaj model, objawy i preferowany kontakt.",
     link: { href: "#formularz", label: "Przejdź do formularza" }
+  },
+  {
+    id: "zamiennik-vs-oryginal",
+    keywords: ["zamiennik", "orygina"],
+    answer: "Zamiennik to sprawdzona, kompatybilna część (nie od Apple) — tańsza opcja. Oryginał to część od Apple — droższa, ale w pełni zgodna ze wszystkimi funkcjami (np. przy niektórych ekranach zachowuje funkcję True Tone). Obie opcje montujemy z tą samą starannością — ceny obu wariantów zobaczysz obok siebie w cenniku dla Twojego modelu.",
+    link: { href: "#cennik", label: "Zobacz obie ceny w cenniku" }
+  },
+  {
+    id: "powitanie",
+    keywords: ["cześć", "czesc", "hej", "dzień dobry", "dzien dobry", "witam", "siema"],
+    answer: "Cześć! Podaj model iPhone i to, co się z nim dzieje (np. „13 Pro pękł ekran”), a sprawdzę cenę naprawy, albo wybierz model z listy poniżej.",
+    options: GENERATIONS.map((generation) => ({
+      label: generation.replace(/^iPhone\s*/i, ""),
+      onClick: () => handleBotGenerationPick(generation)
+    }))
+  },
+  {
+    id: "podziekowanie",
+    keywords: ["dziękuj", "dzięki", "spoko dzięki"],
+    answer: "Nie ma za co! Jeśli będziesz potrzebować kolejnej wyceny albo masz inne pytanie, jestem tutaj."
+  },
+  {
+    id: "kim-jestes",
+    keywords: ["jesteś botem", "jestes botem", "czy to bot", "rozmawiam z człowiekiem", "rozmawiam z czlowiekiem", "sztuczna inteligencja", "kim jesteś", "kim jestes"],
+    answer: "Jestem automatycznym asystentem MojIphone — odpowiadam na podstawie informacji z tej strony (cennik, FAQ), bez sztucznej inteligencji. Do rozmowy z człowiekiem zadzwoń: 570 222 345.",
+    link: { href: "tel:+48570222345", label: "Zadzwoń: 570 222 345" }
   }
 ];
 
@@ -1100,6 +1142,7 @@ function getBotAnswer(message) {
   if (!resolved && !containsPriceIntent) {
     const problemMatch = findBotProblemMatch(message);
     if (problemMatch) {
+      trackUmamiEvent("bot_problem_matched", { topic: problemMatch.href.split("#")[1] });
       return { text: problemMatch.summary, link: { href: problemMatch.href, label: problemMatch.label } };
     }
   }
@@ -1107,6 +1150,7 @@ function getBotAnswer(message) {
   // Sama generacja bez wariantu (np. "13") ma kilka różnych cen - dopytaj,
   // zamiast zgadywać, zanim cokolwiek policzysz.
   if (resolved && resolved.ambiguousGeneration) {
+    trackUmamiEvent("bot_generation_ambiguous", { generation: resolved.ambiguousGeneration });
     return {
       text: `${resolved.ambiguousGeneration} ma kilka wariantów z różną ceną. Który dokładnie masz?`,
       options: resolved.variants.map((variant) => ({
@@ -1128,10 +1172,12 @@ function getBotAnswer(message) {
 
   if (partMatch) {
     if (!contextModel) {
+      trackUmamiEvent("bot_model_missing", { part: partMatch.keys.join("+") });
       return {
         text: "Jaki masz model iPhone? Podaj nazwę albo numer (np. „13 Pro”), a sprawdzę dokładną cenę tej naprawy."
       };
     }
+    trackUmamiEvent("bot_part_asked", { part: partMatch.keys.join("+") });
     return answerForResolvedModel(contextModel, partMatch);
   }
 
@@ -1143,6 +1189,7 @@ function getBotAnswer(message) {
     if (contextModel) {
       return answerForResolvedModel(contextModel, null);
     }
+    trackUmamiEvent("bot_model_missing", { part: "price_intent" });
     return {
       text: "Cena zależy od modelu i rodzaju naprawy. Napisz model (np. „13 Pro cena” albo „iPhone 13 cena”), a pokażę orientacyjną wycenę, albo przejdź do sekcji cennika na stronie.",
       link: { href: "#cennik", label: "Otwórz cennik" }
@@ -1151,11 +1198,13 @@ function getBotAnswer(message) {
 
   const ruleMatch = findBotRuleMatch(message);
   if (ruleMatch) {
-    return { text: ruleMatch.answer, link: ruleMatch.link };
+    trackUmamiEvent("bot_rule_matched", { topic: ruleMatch.id });
+    return { text: ruleMatch.answer, link: ruleMatch.link, options: ruleMatch.options };
   }
 
+  trackUmamiEvent("bot_fallback");
   return {
-    text: "Nie mam gotowej odpowiedzi na to pytanie. Zadzwoń albo napisz przez formularz kontaktowy — odpowiemy najszybciej, jak to możliwe.",
+    text: "Nie mam gotowej odpowiedzi na to pytanie. Mogę pomóc z: wyceną naprawy (podaj model), dojazdem, godzinami pracy, zalaniem, gwarancją albo różnicą między zamiennikiem a oryginałem. Jeśli wolisz, zadzwoń: 570 222 345, albo napisz przez formularz.",
     link: { href: "#formularz", label: "Przejdź do formularza kontaktowego" }
   };
 }
@@ -1266,11 +1315,13 @@ function promptForBotSymptom() {
 function handleBotVariantPick(variant) {
   addChatMessage(variant.variantLabel, "user");
   botContextModel = variant;
+  trackUmamiEvent("bot_onboarding_step", { step: "variant", value: variant.variantLabel });
   promptForBotSymptom();
 }
 
 function handleBotGenerationPick(generation) {
   addChatMessage(generation, "user");
+  trackUmamiEvent("bot_onboarding_step", { step: "generation", value: generation });
   const variants = PRICE_DATA.filter((entry) => entry.generation === generation);
   if (variants.length === 1) {
     botContextModel = variants[0];

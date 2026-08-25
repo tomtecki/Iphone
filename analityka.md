@@ -4,10 +4,16 @@ Ten plik to instrukcja wykonawcza dla osoby/agenta administrującego serwerem (s
 
 Kontekst decyzji: `pomysły.md`, sekcja 5 — wybrano self-hosted Umami zamiast Google Analytics/GTM, bo klient ma własny serwer i chce uniknąć bannera zgody na cookie (Umami domyślnie nie używa cookies do śledzenia).
 
+### Incydent (2026-08-25): analityka nie działała — zła domena skryptu
+
+`analytics.mojiphone.pl`, wpięta w kod strony, **w ogóle się nie rozwiązywała (DNS)** — zweryfikowane przez `curl -I`, błąd "Could not resolve host". Przyczyna: strona jest obecnie faktycznie serwowana pod `iphone.showflow.pl` (platforma hostingowa showflow, patrz `progress.md`), nie pod docelową domeną `mojiphone.pl` — subdomena `analytics.mojiphone.pl` nigdy nie została podłączona pod tę infrastrukturę. Instancja Umami jest dostępna pod `analytics.iphone.showflow.pl` (zweryfikowane `curl -I` → `HTTP/1.1 200 OK`), z tym samym `data-website-id`. Poprawka: zmieniono `src` skryptu we wszystkich 4 plikach HTML (patrz Krok 6) oraz domenę strony w panelu Umami (Krok 5) na `iphone.showflow.pl`.
+
+**Ważne na przyszłość:** gdy strona zostanie docelowo spięta z domeną `mojiphone.pl` (patrz punkt „Rozbieżność wdrożenia” w `progress.md`), trzeba będzie **ponownie zmienić** zarówno `src` skryptu, jak i domenę strony w panelu Umami — ta poprawka jest tymczasowa, dopasowana do obecnego stanu wdrożenia (showflow.pl), nie do docelowej domeny klienta.
+
 ## Wymagania wstępne
 
 - Docker + Docker Compose zainstalowane na serwerze.
-- Dostęp do skonfigurowania subdomeny (rekomendowane: `analytics.mojiphone.pl`) wskazującej na ten serwer.
+- Dostęp do skonfigurowania subdomeny (rekomendowane: `analytics.iphone.showflow.pl`) wskazującej na ten serwer.
 - Reverse proxy (nginx lub Caddy) z automatycznym certyfikatem SSL (np. Let's Encrypt/Certbot, lub Caddy, który robi to automatycznie).
 
 ## Krok 1: Katalog i pliki konfiguracyjne
@@ -62,12 +68,12 @@ Sprawdź, czy oba kontenery działają: `docker compose ps` — status `running`
 
 ## Krok 3: Reverse proxy + HTTPS
 
-Skonfiguruj subdomenę `analytics.mojiphone.pl` jako reverse proxy do `localhost:3000`, z ważnym certyfikatem SSL. Bez działającego HTTPS na tej subdomenie skrypt śledzący nie będzie mógł się poprawnie załadować na stronie głównej (która sama działa po HTTPS) — przeglądarki blokują tzw. mixed content.
+Skonfiguruj subdomenę `analytics.iphone.showflow.pl` jako reverse proxy do `localhost:3000`, z ważnym certyfikatem SSL. Bez działającego HTTPS na tej subdomenie skrypt śledzący nie będzie mógł się poprawnie załadować na stronie głównej (która sama działa po HTTPS) — przeglądarki blokują tzw. mixed content.
 
 Przykład konfiguracji dla Caddy (`Caddyfile`), jeśli jest dostępny na serwerze:
 
 ```
-analytics.mojiphone.pl {
+analytics.iphone.showflow.pl {
     reverse_proxy localhost:3000
 }
 ```
@@ -76,17 +82,17 @@ Caddy automatycznie obsłuży certyfikat SSL. Jeśli na serwerze jest nginx zami
 
 ## Krok 4: Pierwsze logowanie i zmiana hasła
 
-1. Wejdź na `https://analytics.mojiphone.pl`.
+1. Wejdź na `https://analytics.iphone.showflow.pl`.
 2. Zaloguj się domyślnymi danymi: **login `admin`, hasło `umami`**.
 3. **Natychmiast zmień hasło** — Ustawienia → Profil → zmiana hasła. Nie zostawiaj domyślnego hasła w żadnych okolicznościach, panel jest publicznie dostępny pod tym adresem.
 
 ## Krok 5: Dodanie strony i wygenerowanie kodu śledzącego
 
 1. W panelu Umami: **Ustawienia → Strony internetowe → Dodaj stronę internetową**.
-2. Nazwa: `MojIphone`, Domena: `mojiphone.pl`.
+2. Nazwa: `MojIphone`, Domena: **domena, pod którą strona jest faktycznie serwowana** — obecnie `iphone.showflow.pl` (nie `mojiphone.pl`, patrz uwaga niżej). Umami porównuje ten adres z nagłówkiem `Origin` żądań ze skryptu śledzącego — niezgodność powoduje odrzucanie zdarzeń mimo poprawnie ładującego się skryptu.
 3. Zapisz — Umami wygeneruje gotowy fragment kodu, wygląda podobnie do:
    ```html
-   <script defer src="https://analytics.mojiphone.pl/script.js" data-website-id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></script>
+   <script defer src="https://analytics.iphone.showflow.pl/script.js" data-website-id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></script>
    ```
 
 ## Krok 6: Co przekazać dalej
@@ -101,7 +107,7 @@ Aby dodać kolejną stronę:
 
 1. W panelu Umami: **Ustawienia → Strony internetowe → Dodaj stronę internetową**.
 2. Podaj nazwę i domenę nowej strony.
-3. Umami wygeneruje nowy tag `<script>` z tym samym `src="https://analytics.mojiphone.pl/script.js"`, ale **innym** `data-website-id`.
+3. Umami wygeneruje nowy tag `<script>` z tym samym `src="https://analytics.iphone.showflow.pl/script.js"`, ale **innym** `data-website-id`.
 4. Wklej ten tag w `<head>` nowej strony (bezpośrednio w jej kodzie/repo).
 
 **Uwaga o zasobach serwera:** więcej podpiętych stron = więcej zapisów do bazy Postgres. Dla kilku stron wizytówkowych to pomijalne obciążenie, ale przy stronie z realnie dużym ruchem warto obserwować zużycie RAM/CPU kontenera `db` i w razie potrzeby zwiększyć zasoby.
@@ -125,5 +131,6 @@ Poza automatycznymi odsłonami stron, `script.js` wysyła do Umami dodatkowe zda
 
 - [ ] Hasło administratora zmienione z domyślnego.
 - [ ] `.env` nie jest publicznie dostępny (nie w katalogu serwowanym przez webserver, nie w Git).
-- [ ] Subdomena `analytics.mojiphone.pl` działa po HTTPS z ważnym certyfikatem.
+- [ ] Subdomena `analytics.iphone.showflow.pl` działa po HTTPS z ważnym certyfikatem (zweryfikowano `curl -I` → 200, 2026-08-25).
+- [ ] Domena strony w panelu Umami (Ustawienia → Strony internetowe) ustawiona na `iphone.showflow.pl`, zgodnie z domeną, pod którą strona jest faktycznie serwowana.
 - [ ] Port `3000` nie jest wystawiony publicznie bezpośrednio, jeśli reverse proxy już go przykrywa (dla dodatkowego bezpieczeństwa można ograniczyć nasłuchiwanie do `127.0.0.1:3000` zamiast `0.0.0.0:3000` w `docker-compose.yml`, skoro dostęp ma iść tylko przez reverse proxy).

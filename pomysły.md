@@ -135,7 +135,7 @@ Pomysł klienta: rozbudować stronę o artykuły diagnostyczne dla najczęstszyc
 
 ## 7. Statystyki użycia bota i archiwizacja rozmów — ocena RODO
 
-**Status: ✅ punkt 1 rekomendacji wdrożony (2026-08-21, branch `analityka/wiecej-zdarzen-umami`) — zdarzenia w Umami bez treści wiadomości. Punkty 2-3 (archiwizacja treści fallbacków) czekają na decyzję klienta.**
+**Status: ✅ punkt 1 rekomendacji wdrożony (2026-08-21, branch `analityka/wiecej-zdarzen-umami` — zdarzenia ogólne strony; 2026-08-25 — zdarzenia specyficzne dla bota z rekomendacji Architekta poniżej: `bot_rule_matched`, `bot_part_asked`, `bot_model_missing`, `bot_problem_matched`, `bot_generation_ambiguous`, `bot_onboarding_step`, `bot_fallback`, wszystkie bez treści wiadomości). Punkty 2-3 (archiwizacja treści fallbacków) czekają na decyzję klienta.**
 
 ### Co zaimplementowano
 
@@ -149,7 +149,7 @@ Nowe zdarzenia w `script.js` (funkcja `trackUmamiEvent`, wywoływana tylko gdy `
 
 Odsłony stron (co klient oglądał, w tym `sprawdz-model-iphone.html` vs `index.html`) Umami zbiera automatycznie, bez dodatkowego kodu.
 
-**Jeszcze niezaimplementowane** (osobna decyzja, patrz "Do decyzji klienta" niżej): zdarzenia specyficzne dla bota (`bot_rule_matched`, `bot_fallback`) proponowane przez Architekta niżej — przydatne do wiedzy "co poprawić w bazie bota", ale to inny cel niż ten, o który klient prosił w tej turze (widoczność zachowania klienta), więc odłożone do osobnego zlecenia.
+**Zaimplementowane później (2026-08-25):** zdarzenia specyficzne dla bota (`bot_rule_matched`, `bot_fallback` i pokrewne) proponowane przez Architekta niżej — wdrożone przy okazji poprawy czatbota, patrz `bot.md` sekcja "Śledzenie skuteczności bota".
 
 ### Do decyzji klienta (część nadal aktualna)
 

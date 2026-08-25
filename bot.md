@@ -16,7 +16,7 @@ Wszystko mieszka w [script.js](script.js), w sekcji zaczynającej się komentarz
 |---|---|
 | `PRICE_DATA` | Ta sama tablica, co napędza cennik — model, generacja, wariant, ceny per usterka. Bot generuje odpowiedzi cenowe **na żywo z tych danych**, nigdy z osobnego, ręcznie pisanego tekstu — dlatego cena podana przez bota i cena w cenniku nigdy się nie rozjadą. |
 | `GENERATIONS` | Lista unikalnych generacji (iPhone 17, 16, 15... 4s), wyliczona automatycznie z `PRICE_DATA`. Używana w ścieżce startowej i przy dopytywaniu o wariant. |
-| `BOT_RULES` | ~15 tematów ogólnych (dojazd, godziny, gwarancja, proces, zalanie, upadek, opinie, faktura, formularz itd.) — każdy ma listę słów kluczowych, gotową odpowiedź i link do właściwej sekcji strony. |
+| `BOT_RULES` | ~20 tematów ogólnych (dojazd, godziny, gwarancja, proces, zalanie, upadek, opinie, faktura, formularz, zamiennik vs oryginał, powitanie/podziękowanie/"czy jesteś botem" itd.) — każdy ma `id` (do śledzenia w Umami, patrz niżej), listę słów kluczowych, gotową odpowiedź i opcjonalnie link albo `options` (przyciski, np. powitanie od razu proponuje listę generacji). |
 | `BOT_PART_GROUPS` | Mapa usterek na klucze cenowe z `PRICE_DATA` (np. `aparat` → `rearCamera`+`frontCamera`). Zawiera zarówno nazwy usług, jak i opisy objawów, jak faktycznie pisze klient ("pękł ekran", "nie ładuje się", "mnie nie słyszą"). |
 | `BOT_SYMPTOM_CHIPS` | Pięć gotowych przycisków objawów pokazywanych w ścieżce startowej. |
 
@@ -60,10 +60,26 @@ jeśli rozpoznano tylko model (bez usterki) → ogólne podsumowanie (ekran + ba
 
 jeśli wiadomość zawiera słowo o cenie ("cena", "koszt"...) → cena dla modelu z kontekstu, albo prośba o podanie modelu
 
-jeśli pasuje reguła ogólna (BOT_RULES) → gotowa odpowiedź + link
+jeśli pasuje reguła ogólna (BOT_RULES, w tym powitanie/podziękowanie/"czy jesteś botem"/zamiennik vs oryginał) → gotowa odpowiedź + link/przyciski
 
-nic nie pasuje → "Zadzwoń: 570 222 345" + link do formularza
+nic nie pasuje → podpowiedź z czym bot może pomóc + "Zadzwoń: 570 222 345" + link do formularza
 ```
+
+## Śledzenie skuteczności bota (Umami)
+
+Bot wysyła zdarzenia do Umami (self-hosted, bez cookies — patrz `analityka.md`) opisujące **jaki typ pytania padł**, nigdy treść wiadomości klienta (zgodnie z zasadą z `pomysły.md`, sekcja 7). Wywołania są w `getBotAnswer()` i w krokach ścieżki startowej:
+
+| Zdarzenie | Kiedy | Dane |
+|---|---|---|
+| `bot_rule_matched` | Trafienie w `BOT_RULES` (dojazd, godziny, zamiennik vs oryginał, powitanie...) | `{ topic: rule.id }` |
+| `bot_part_asked` | Rozpoznano usterkę i model (kontekst albo podany wprost) | `{ part: "screen" }` itp. (klucze z `PRICE_DATA`) |
+| `bot_model_missing` | Rozpoznano usterkę/cenę, ale brak modelu — bot dopytuje | `{ part: ... }` |
+| `bot_problem_matched` | Trafienie w `BOT_PROBLEM_TOPICS` (poradnik objawowy) | `{ topic: "bateria" }` itp. (fragment URL poradnika) |
+| `bot_generation_ambiguous` | Klient podał samą generację z >1 wariantem, bot dopytuje | `{ generation: "iPhone 13" }` |
+| `bot_onboarding_step` | Klik w krok ścieżki startowej (generacja/wariant) | `{ step: "generation"/"variant", value: ... }` |
+| `bot_fallback` | Nic nie pasowało — **najcenniejszy sygnał**, mówi co dopisać do bazy | brak danych |
+
+To domyka rekomendację Architekta z `pomysły.md` (sekcja 7) — wiadomo, co poprawiać w bocie, bez zbierania treści rozmów.
 
 ## Ścieżka startowa (onboarding)
 
@@ -97,7 +113,7 @@ Widżet otwiera się samoczynnie **3 sekundy** po wejściu na stronę — ale ty
 
 Nie ma panelu administracyjnego — rozszerzenie oznacza edycję tablic w `script.js` i wdrożenie nowej wersji strony:
 
-- **Nowy temat ogólny** → dopisz obiekt do `BOT_RULES` (słowa kluczowe + gotowa odpowiedź + link).
+- **Nowy temat ogólny** → dopisz obiekt do `BOT_RULES` (unikalny `id` w kebab-case dla śledzenia w Umami + słowa kluczowe + gotowa odpowiedź + link albo `options`).
 - **Nowa usterka/objaw** → dopisz do `BOT_PART_GROUPS`, wskazując klucze z `PRICE_DATA`/`SERVICES`.
 - **Nowy model** → dopisz do `PRICE_DATA` (patrz `progress.md` — modele bez cen pokazują "Na zapytanie").
 
