@@ -1,6 +1,6 @@
 # Progress — strona MojIphone
 
-Ostatnia aktualizacja: 2026-08-21 (scalenie: poradnik problemów, bot, polityka prywatności, więcej analityki, dokumentacja)
+Ostatnia aktualizacja: 2026-08-22 (poprawka mobilna czatu, mniejsze nagłówki, wykryta rozbieżność wdrożenia na showflow.pl)
 
 ## ✅ Zrobione
 
@@ -26,6 +26,17 @@ Ostatnia aktualizacja: 2026-08-21 (scalenie: poradnik problemów, bot, polityka 
 - Faza 2 bota (zbieranie leadów + integracja z systemem obsługującym naprawy) — zaplanowana w `pomysły.md`, jeszcze niezaimplementowana.
 - **`problemy-z-iphone.html`** — poradnik "co zrobić, gdy..." dla 11 najczęstszych problemów (bateria, przegrzewanie, ghost touch, ostrzeżenie o cieczy, wolne działanie, brak sieci, restart co kilka minut/panic-full, brak głosu 12/12 Pro, Touch Disease 6 Plus, Audio IC Disease 7/7 Plus, zielony/biały ekran 13 Pro), źródło: `usterki.md` od klienta. Bezpieczne kroki programowe zostały, ale treści DIY dotyczące otwierania telefonu/lutowania zastąpiono kierowaniem do kontaktu z MojIphone (zgodnie z wcześniejszą zasadą zespołu: diagnoza, nie instrukcja majsterkowania). FAQPage schema dla AEO/AI. Link w nawigacji ("Pomoc") na `index.html` i `sprawdz-model-iphone.html`.
 - Bot rozpoznaje teraz też pytania objawowe bez podanego modelu (np. "iPhone się grzeje") i kieruje do właściwej sekcji `problemy-z-iphone.html` (`BOT_PROBLEM_TOPICS` w `script.js`) — sprawdzane przed pytaniem o model/cenę, żeby klient dostał diagnozę zamiast od razu być pytanym o model.
+- **Naprawiony realny błąd: okienko czatu otwierało się poza ekranem na mobile.** Przyczyna była głębsza niż pierwsza poprawka: bezwarunkowe reguły `.chat-widget`/`.chat-panel`/`.contact-dock` były w pliku `styles.css` **fizycznie później** niż `@media (max-width: 620px)` z ich mobilnymi wariantami — przez to override mobilny nigdy się nie stosował (kaskada CSS liczy się według kolejności w pliku przy tej samej specyficzności). Cały blok bezwarunkowy przeniesiony przed obie media queries; do `.chat-panel` na mobile dodano `position: fixed` (żeby `left`/`right` liczyły się względem całego ekranu, nie względem 58-pikselowego przycisku) i `max-height: 65vh`. Zweryfikowane przez wymuszenie reguł mobilnych na żywej stronie w przeglądarce (Chrome przez rozszerzenie "Claude in Chrome") — panel poprawnie rozciąga się przy krawędziach ekranu.
+- **Zmniejszone nagłówki globalnie** (h1/h2/h3) na całej stronie, w tym hero na stronie głównej — na wyraźną prośbę klienta. h1: z clamp do 6,5rem (kolumna 11 znaków) → clamp do 3,4rem (kolumna 22 znaki). h2: z clamp do 3,4rem → clamp do 2,4rem. Usunięty też węższy mobilny override h1 (12 znaków), sensowny tylko przy starej, dużej czcionce.
+- Strona "Pomoc" (`problemy-z-iphone.html`) doprowadzona do porządku: naprawiono przewijanie do sekcji (chowało się pod sticky nagłówkiem — `scroll-margin-top` był na złym elemencie), dodano widoczny nagłówek spisu treści (był ukryty `sr-only`), dodano disclaimer "na własną odpowiedzialność" z numerem telefonu do każdej z 11 sekcji z krokami.
+- Rozszerzone zdarzenia analityczne w Umami: `model_selected` (z polem `source`: select/popular/search/bot/url_param), `contact_form_started`, `contact_form_submitted` (bez treści pól — dane osobowe), oraz kliknięcia `tel:`/WhatsApp/czat przekierowane też do Umami (wcześniej szły tylko do nieużywanego `window.dataLayer`).
+- **Testowanie w przeglądarce działa** — po zainstalowaniu przez klienta rozszerzenia "Claude for Chrome" mogę realnie otwierać stronę, klikać, robić zrzuty ekranu i wymuszać reguły CSS do weryfikacji (np. testu mobilnego bez realnej zmiany rozmiaru okna, które w tym środowisku jest zablokowane).
+
+### ⚠️ Ważne odkrycie: `iphone.showflow.pl` nie jest zsynchronizowane z GitHub
+
+Porównanie `styles.css` z serwera (przez czyste `curl`, bez cache przeglądarki) z lokalnym plikiem pokazało, że **żywa strona na showflow.pl nie ma najnowszego commita** (`36257bf` — poprawka czatu na mobile). Ma już zmniejszone nagłówki i większość wcześniejszych funkcji, ale brakuje `position: fixed` i `max-height` w mobilnym `.chat-panel` — **błąd z czatem wyskakującym poza ekran prawdopodobnie nadal występuje na żywo**, mimo że w repozytorium jest naprawiony.
+
+`showflow.pl` to najwyraźniej zewnętrzna platforma hostingowa/wdrożeniowa (ślady frameworku Angular w warstwie serwującej), nie zwykły serwer plików — prawdopodobnie synchronizuje się z GitHub automatycznie, ale z opóźnieniem, albo wymaga ręcznego wyzwolenia wdrożenia. **Wymaga sprawdzenia przez klienta w panelu tej platformy** (przycisk "Redeploy"/"Sync" albo ponowne wgranie z brancha `main`).
 
 ## ⚠️ Brakuje / blokuje publikację
 
@@ -39,6 +50,7 @@ Ostatnia aktualizacja: 2026-08-21 (scalenie: poradnik problemów, bot, polityka 
 8. **Docelowy widget Google** zamiast statycznych opinii — opcjonalne, wymaga wyboru narzędzia (Elfsight/EmbedSocial/Trustmary) i prawdopodobnie płatnego planu.
 9. **NIP firmy** brakuje w `polityka-prywatnosci.html` (oznaczone w treści jako do uzupełnienia) — potrzebny przed publikacją.
 10. **Polityka prywatności wymaga przeglądu prawnego** — napisana na podstawie standardowych wymogów RODO, ale to nie jest porada prawna.
+11. **`iphone.showflow.pl` nie jest zsynchronizowane z najnowszym commitem `main`** (patrz sekcja wyżej) — brakuje poprawki czatu na mobile. Klient musi wymusić ponowne wdrożenie na tej platformie.
 
 ## 🤔 Decyzje do podjęcia przez klienta
 
@@ -47,6 +59,7 @@ Ostatnia aktualizacja: 2026-08-21 (scalenie: poradnik problemów, bot, polityka 
 - Czy i kiedy przesłać cennik dla nowych modeli (17/Air/16).
 - Czy inwestować w widget Google Reviews (koszt/narzędzie) czy zostać przy statycznych opiniach.
 - Priorytet: formularz kontaktowy (backend) — bez tego strona traci leady mimo ruchu.
+- **Pilne:** sprawdzić i wymusić redeploy na `iphone.showflow.pl` — brakuje ostatniej poprawki (czat na mobile).
 
 ## 💡 Pomysły omówione, jeszcze niezaimplementowane
 
