@@ -14,10 +14,10 @@ Wszystko mieszka w [script.js](script.js), w sekcji zaczynającej się komentarz
 
 | Struktura | Rola |
 |---|---|
-| `PRICE_DATA` | Ta sama tablica, co napędza cennik — model, generacja, wariant, ceny per usterka. Bot generuje odpowiedzi cenowe **na żywo z tych danych**, nigdy z osobnego, ręcznie pisanego tekstu — dlatego cena podana przez bota i cena w cenniku nigdy się nie rozjadą. |
-| `GENERATIONS` | Lista unikalnych generacji (iPhone 17, 16, 15... 4s), wyliczona automatycznie z `PRICE_DATA`. Używana w ścieżce startowej i przy dopytywaniu o wariant. |
+| `PRICE_DATA` | Alias tablicy `CENNIK` z `cennik.js` — ta sama, co napędza cennik: model, generacja, wariant, ceny per usługa (`USLUGI`). Bot generuje odpowiedzi cenowe **na żywo z tych danych**, nigdy z osobnego, ręcznie pisanego tekstu — dlatego cena podana przez bota i cena w cenniku nigdy się nie rozjadą. |
+| `GENERATIONS` | Lista unikalnych generacji (iPhone 17, 16, 15... 5 / SE), wyliczona automatycznie z `PRICE_DATA`. Używana w ścieżce startowej i przy dopytywaniu o wariant. |
 | `BOT_RULES` | ~20 tematów ogólnych (dojazd, godziny, gwarancja, proces, zalanie, upadek, opinie, faktura, formularz, zamiennik vs oryginał, powitanie/podziękowanie/"czy jesteś botem" itd.) — każdy ma `id` (do śledzenia w Umami, patrz niżej), listę słów kluczowych, gotową odpowiedź i opcjonalnie link albo `options` (przyciski, np. powitanie od razu proponuje listę generacji). |
-| `BOT_PART_GROUPS` | Mapa usterek na klucze cenowe z `PRICE_DATA` (np. `aparat` → `rearCamera`+`frontCamera`). Zawiera zarówno nazwy usług, jak i opisy objawów, jak faktycznie pisze klient ("pękł ekran", "nie ładuje się", "mnie nie słyszą"). |
+| `BOT_PART_GROUPS` | Mapa usterek na grupy usług z `cennik.js` (pole `grupa`, np. `aparat` → `camera`: szkło aparatu, aparat tylny i przedni). Zawiera zarówno nazwy usług, jak i opisy objawów, jak faktycznie pisze klient ("pękł ekran", "nie ładuje się", "mnie nie słyszą"). |
 | `BOT_SYMPTOM_CHIPS` | Pięć gotowych przycisków objawów pokazywanych w ścieżce startowej. |
 
 ## Jak bot rozumie wiadomość klienta
@@ -72,7 +72,7 @@ Bot wysyła zdarzenia do Umami (self-hosted, bez cookies — patrz `analityka.md
 | Zdarzenie | Kiedy | Dane |
 |---|---|---|
 | `bot_rule_matched` | Trafienie w `BOT_RULES` (dojazd, godziny, zamiennik vs oryginał, powitanie...) | `{ topic: rule.id }` |
-| `bot_part_asked` | Rozpoznano usterkę i model (kontekst albo podany wprost) | `{ part: "screen" }` itp. (klucze z `PRICE_DATA`) |
+| `bot_part_asked` | Rozpoznano usterkę i model (kontekst albo podany wprost) | `{ part: "screen" }` itp. (grupy z `USLUGI` w `cennik.js`) |
 | `bot_model_missing` | Rozpoznano usterkę/cenę, ale brak modelu — bot dopytuje | `{ part: ... }` |
 | `bot_problem_matched` | Trafienie w `BOT_PROBLEM_TOPICS` (poradnik objawowy) | `{ topic: "bateria" }` itp. (fragment URL poradnika) |
 | `bot_generation_ambiguous` | Klient podał samą generację z >1 wariantem, bot dopytuje | `{ generation: "iPhone 13" }` |
@@ -114,7 +114,7 @@ Widżet otwiera się samoczynnie **3 sekundy** po wejściu na stronę — ale ty
 Nie ma panelu administracyjnego — rozszerzenie oznacza edycję tablic w `script.js` i wdrożenie nowej wersji strony:
 
 - **Nowy temat ogólny** → dopisz obiekt do `BOT_RULES` (unikalny `id` w kebab-case dla śledzenia w Umami + słowa kluczowe + gotowa odpowiedź + link albo `options`).
-- **Nowa usterka/objaw** → dopisz do `BOT_PART_GROUPS`, wskazując klucze z `PRICE_DATA`/`SERVICES`.
-- **Nowy model** → dopisz do `PRICE_DATA` (patrz `progress.md` — modele bez cen pokazują "Na zapytanie").
+- **Nowa usterka/objaw** → dopisz do `BOT_PART_GROUPS`, wskazując grupy (`grupa`) z `USLUGI` w `cennik.js`.
+- **Nowy model / zmiana ceny** → tylko `cennik.js` (instrukcja na górze pliku). Usługi z wartością `null` nie pokazują się w tabeli.
 
 Warto pamiętać, że `normalizeBotText()` sam obsłuży warianty z i bez polskich znaków — nie trzeba dublować wpisów.

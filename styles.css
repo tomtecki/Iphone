@@ -658,7 +658,7 @@ h3 {
 
 .price-table {
   width: 100%;
-  min-width: 720px;
+  min-width: 480px;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -680,8 +680,15 @@ h3 {
 
 .price-table th:first-child,
 .price-table td:first-child {
-  width: 34%;
+  width: 52%;
   font-weight: 850;
+}
+
+.price-part {
+  display: block;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 650;
 }
 
 .price-table tr:last-child td {
@@ -1371,7 +1378,7 @@ body:not(:has(.chat-widget)) .contact-dock {
   }
 
   .price-table {
-    min-width: 620px;
+    min-width: 0;
   }
 
   .price-table th,

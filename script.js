@@ -24,491 +24,39 @@ if (navToggle && nav) {
   });
 }
 
-const SERVICES = [
-  ["screen", "Wymiana wyświetlacza"],
-  ["battery", "Wymiana baterii"],
-  ["backGlass", "Wymiana szkła tylnego"],
-  ["rearCamera", "Aparat główny"],
-  ["frontCamera", "Aparat przedni"],
-  ["charging", "Gniazdo ładowania"],
-  ["mic", "Mikrofon dolny"],
-  ["speakerTop", "Głośnik górny"],
-  ["speakerBottom", "Głośnik dolny"],
-  ["buttons", "Przycisk on/off lub volume"],
-  ["home", "Przycisk HOME"],
-  ["sim", "Antena SIM"],
-  ["housing", "Korpus / tylna obudowa"],
-  ["sensor", "Czujnik zbliżeniowy"]
-];
+// Ceny i lista modeli są w cennik.js (ładowanym przed tym plikiem) - tam
+// zmienia się cennik, ten plik tylko go wyświetla.
+const PRICE_DATA = CENNIK;
 
-const NA = ["-", "-", "Na zapytanie"];
-
-// TODO: modele poniżej (17/Air/16) nie mają jeszcze cen - klient musi przesłać cennik, żeby wypełnić pola takie jak w modelach poniżej (screen, battery, itd.), zamiast pokazywać "Na zapytanie" dla wszystkiego.
-const PRICE_DATA = [
-  { model: "iPhone 17 Pro Max", generation: "iPhone 17", variantLabel: "Pro Max" },
-  { model: "iPhone 17 Pro", generation: "iPhone 17", variantLabel: "Pro" },
-  { model: "iPhone Air", generation: "iPhone Air", variantLabel: "Standardowy" },
-  { model: "iPhone 17", generation: "iPhone 17", variantLabel: "Standardowy" },
-  { model: "iPhone 17e", generation: "iPhone 17", variantLabel: "e" },
-  { model: "iPhone 16 Pro Max", generation: "iPhone 16", variantLabel: "Pro Max" },
-  { model: "iPhone 16 Pro", generation: "iPhone 16", variantLabel: "Pro" },
-  { model: "iPhone 16 Plus", generation: "iPhone 16", variantLabel: "Plus" },
-  { model: "iPhone 16", generation: "iPhone 16", variantLabel: "Standardowy" },
-  { model: "iPhone 16e", generation: "iPhone 16", variantLabel: "e" },
-  {
-    model: "iPhone 15 Pro Max",
-    generation: "iPhone 15",
-    variantLabel: "Pro Max",
-    screen: ["1600 zł OLED", "2400 zł", "30-60 min"],
-    battery: ["250 zł", "500 zł", "30-60 min"],
-    backGlass: ["-", "850 zł", "2-3 dni robocze"],
-    frontCamera: ["-", "400 zł", "30-60 min"],
-    charging: ["brak", "650 zł", "30-60 min"],
-    mic: ["brak", "650 zł", "30-60 min"],
-    speakerTop: ["350 zł", "750 zł", "30-60 min"],
-    speakerBottom: ["-", "350 zł", "30-60 min"],
-    buttons: ["350 zł", "500 zł", "30-60 min"],
-    housing: ["350 zł", "750 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 15 Pro",
-    generation: "iPhone 15",
-    variantLabel: "Pro",
-    screen: ["1300 zł OLED", "1900 zł", "30-60 min"],
-    battery: ["250 zł", "500 zł", "30-60 min"],
-    backGlass: ["-", "850 zł", "2-3 dni robocze"],
-    frontCamera: ["-", "400 zł", "30-60 min"],
-    charging: ["brak", "650 zł", "30-60 min"],
-    mic: ["brak", "650 zł", "30-60 min"],
-    speakerTop: ["350 zł", "750 zł", "30-60 min"],
-    speakerBottom: ["-", "350 zł", "30-60 min"],
-    buttons: ["350 zł", "500 zł", "30-60 min"],
-    housing: ["350 zł", "750 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 15 Plus",
-    generation: "iPhone 15",
-    variantLabel: "Plus",
-    screen: ["950 zł", "1500 zł", "30-60 min"],
-    battery: ["250 zł", "500 zł", "30-60 min"],
-    backGlass: ["-", "850 zł", "2-3 dni robocze"],
-    frontCamera: ["-", "400 zł", "30-60 min"],
-    charging: ["brak", "650 zł", "30-60 min"],
-    mic: ["brak", "650 zł", "30-60 min"],
-    speakerTop: ["350 zł", "750 zł", "30-60 min"],
-    speakerBottom: ["-", "350 zł", "30-60 min"],
-    buttons: ["350 zł", "500 zł", "30-60 min"],
-    housing: ["350 zł", "750 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 15",
-    generation: "iPhone 15",
-    variantLabel: "Standardowy",
-    screen: ["700 zł OLED", "1300 zł", "30-60 min"],
-    battery: ["250 zł", "500 zł", "30-60 min"],
-    backGlass: ["-", "850 zł", "2-3 dni robocze"],
-    frontCamera: ["-", "400 zł", "30-60 min"],
-    charging: ["brak", "650 zł", "30-60 min"],
-    mic: ["brak", "650 zł", "30-60 min"],
-    speakerTop: ["350 zł", "750 zł", "30-60 min"],
-    speakerBottom: ["-", "350 zł", "30-60 min"],
-    buttons: ["350 zł", "500 zł", "30-60 min"],
-    housing: ["350 zł", "750 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 14 Pro Max",
-    generation: "iPhone 14",
-    variantLabel: "Pro Max",
-    screen: ["1250 zł OLED", "1850 zł", "30-60 min"],
-    battery: ["230 zł", "450 zł", "30-60 min"],
-    backGlass: ["-", "600 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "550 zł", "30-60 min"],
-    frontCamera: ["-", "350 zł", "30-60 min"],
-    charging: ["brak", "600 zł", "30-60 min"],
-    mic: ["brak", "600 zł", "30-60 min"],
-    speakerTop: ["300 zł", "650 zł", "30-60 min"],
-    speakerBottom: ["-", "300 zł", "30-60 min"],
-    buttons: ["300 zł", "400 zł", "30-60 min"],
-    housing: ["400-500 zł", "650 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 14 Pro",
-    generation: "iPhone 14",
-    variantLabel: "Pro",
-    screen: ["1200 zł OLED", "1800 zł", "30-60 min"],
-    battery: ["230 zł", "450 zł", "30-60 min"],
-    backGlass: ["-", "600 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "550 zł", "30-60 min"],
-    frontCamera: ["-", "350 zł", "30-60 min"],
-    charging: ["brak", "600 zł", "30-60 min"],
-    mic: ["brak", "600 zł", "30-60 min"],
-    speakerTop: ["300 zł", "650 zł", "30-60 min"],
-    speakerBottom: ["-", "300 zł", "30-60 min"],
-    buttons: ["300 zł", "400 zł", "30-60 min"],
-    housing: ["400-500 zł", "650 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 14 Plus",
-    generation: "iPhone 14",
-    variantLabel: "Plus",
-    screen: ["600 zł", "1250 zł", "30-60 min"],
-    battery: ["230 zł", "450 zł", "30-60 min"],
-    backGlass: ["-", "600 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "500 zł", "30-60 min"],
-    frontCamera: ["-", "350 zł", "30-60 min"],
-    charging: ["brak", "600 zł", "30-60 min"],
-    mic: ["brak", "600 zł", "30-60 min"],
-    speakerTop: ["300 zł", "650 zł", "30-60 min"],
-    speakerBottom: ["-", "300 zł", "30-60 min"],
-    buttons: ["300 zł", "400 zł", "30-60 min"],
-    housing: ["400-500 zł", "650 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 14",
-    generation: "iPhone 14",
-    variantLabel: "Standardowy",
-    screen: ["550 zł OLED", "1200 zł", "30-60 min"],
-    battery: ["230 zł", "450 zł", "30-60 min"],
-    backGlass: ["-", "600 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "500 zł", "30-60 min"],
-    frontCamera: ["-", "350 zł", "30-60 min"],
-    charging: ["brak", "600 zł", "30-60 min"],
-    mic: ["brak", "600 zł", "30-60 min"],
-    speakerTop: ["300 zł", "650 zł", "30-60 min"],
-    speakerBottom: ["-", "300 zł", "30-60 min"],
-    buttons: ["300 zł", "400 zł", "30-60 min"],
-    housing: ["400-500 zł", "650 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 13 Pro Max",
-    generation: "iPhone 13",
-    variantLabel: "Pro Max",
-    screen: ["900 zł OLED", "1500 zł", "30-60 min"],
-    battery: ["220 zł", "450 zł", "30-60 min"],
-    backGlass: ["-", "400 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "450 zł", "30-60 min"],
-    frontCamera: ["-", "300 zł", "30-60 min"],
-    charging: ["brak", "500 zł", "30-60 min"],
-    mic: ["brak", "500 zł", "30-60 min"],
-    speakerTop: ["250 zł", "550 zł", "30-60 min"],
-    speakerBottom: ["-", "250 zł", "30-60 min"],
-    buttons: ["250 zł", "350 zł", "30-60 min"],
-    housing: ["300-350 zł", "450 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 13 Pro",
-    generation: "iPhone 13",
-    variantLabel: "Pro",
-    screen: ["850 zł OLED", "1400 zł", "30-60 min"],
-    battery: ["220 zł", "450 zł", "30-60 min"],
-    backGlass: ["-", "400 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "450 zł", "30-60 min"],
-    frontCamera: ["-", "300 zł", "30-60 min"],
-    charging: ["brak", "500 zł", "30-60 min"],
-    mic: ["brak", "500 zł", "30-60 min"],
-    speakerTop: ["250 zł", "550 zł", "30-60 min"],
-    speakerBottom: ["-", "250 zł", "30-60 min"],
-    buttons: ["250 zł", "350 zł", "30-60 min"],
-    housing: ["300-350 zł", "450 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 13 / 13 mini",
-    generation: "iPhone 13",
-    variantLabel: "Standardowy / mini",
-    screen: ["450 zł OLED", "990 zł", "30-60 min"],
-    battery: ["220 zł", "450 zł", "30-60 min"],
-    backGlass: ["-", "400 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "350 zł", "30-60 min"],
-    frontCamera: ["-", "300 zł", "30-60 min"],
-    charging: ["brak", "500 zł", "30-60 min"],
-    mic: ["brak", "500 zł", "30-60 min"],
-    speakerTop: ["250 zł", "550 zł", "30-60 min"],
-    speakerBottom: ["-", "250 zł", "30-60 min"],
-    buttons: ["250 zł", "350 zł", "30-60 min"],
-    housing: ["300-350 zł", "450 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 12 Pro Max",
-    generation: "iPhone 12",
-    variantLabel: "Pro Max",
-    screen: ["850 zł OLED", "1050 zł", "30-60 min"],
-    battery: ["210 zł", "390 zł", "30-60 min"],
-    backGlass: ["-", "350 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "500 zł", "30-60 min"],
-    frontCamera: ["-", "250 zł", "30-60 min"],
-    charging: ["brak", "400 zł", "30-60 min"],
-    mic: ["brak", "400 zł", "30-60 min"],
-    speakerTop: ["200 zł", "450 zł", "30-60 min"],
-    speakerBottom: ["-", "200 zł", "30-60 min"],
-    buttons: ["250 zł", "300 zł", "30-60 min"],
-    housing: ["220-250 zł", "400 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 12 / 12 Pro",
-    generation: "iPhone 12",
-    variantLabel: "Standardowy / Pro",
-    screen: ["450 zł OLED", "790 zł", "30-60 min"],
-    battery: ["210 zł", "390 zł", "30-60 min"],
-    backGlass: ["-", "350 zł", "2-3 dni robocze"],
-    rearCamera: ["350-500 zł", "500 zł", "30-60 min"],
-    frontCamera: ["-", "250 zł", "30-60 min"],
-    charging: ["brak", "400 zł", "30-60 min"],
-    mic: ["brak", "400 zł", "30-60 min"],
-    speakerTop: ["200 zł", "450 zł", "30-60 min"],
-    speakerBottom: ["-", "200 zł", "30-60 min"],
-    buttons: ["250 zł", "300 zł", "30-60 min"],
-    housing: ["220-250 zł", "400 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 12 mini",
-    generation: "iPhone 12",
-    variantLabel: "mini",
-    screen: ["490 zł OLED", "790 zł", "30-60 min"],
-    battery: ["210 zł", "390 zł", "30-60 min"],
-    backGlass: ["-", "350 zł", "2-3 dni robocze"],
-    rearCamera: ["-", "350 zł", "30-60 min"],
-    frontCamera: ["-", "250 zł", "30-60 min"],
-    charging: ["brak", "400 zł", "30-60 min"],
-    mic: ["brak", "400 zł", "30-60 min"],
-    speakerTop: ["200 zł", "450 zł", "30-60 min"],
-    speakerBottom: ["-", "200 zł", "30-60 min"],
-    buttons: ["250 zł", "300 zł", "30-60 min"],
-    housing: ["220-250 zł", "400 zł", "1 dzień roboczy"]
-  },
-  {
-    model: "iPhone 11 Pro Max",
-    generation: "iPhone 11",
-    variantLabel: "Pro Max",
-    screen: ["450 zł OLED", "790 zł", "30-60 min"],
-    battery: ["200 zł", "350 zł", "15-30 min"],
-    backGlass: ["-", "300 zł", "1-2 dni robocze"],
-    rearCamera: ["-", "450 zł", "30-60 min"],
-    frontCamera: ["-", "200 zł", "30-60 min"],
-    charging: ["300 zł", "300 zł", "30-60 min"],
-    mic: ["300 zł", "400 zł", "30-60 min"],
-    speakerTop: ["150 zł", "450 zł", "30-60 min"],
-    speakerBottom: ["-", "180 zł", "30-60 min"],
-    buttons: ["200 zł", "300 zł", "30-60 min"],
-    housing: ["220-250 zł", "300 zł", "50-90 min"]
-  },
-  {
-    model: "iPhone 11 Pro",
-    generation: "iPhone 11",
-    variantLabel: "Pro",
-    screen: ["400 zł OLED", "750 zł", "30-60 min"],
-    battery: ["200 zł", "350 zł", "15-30 min"],
-    backGlass: ["-", "300 zł", "1-2 dni robocze"],
-    rearCamera: ["-", "450 zł", "30-60 min"],
-    frontCamera: ["-", "200 zł", "30-60 min"],
-    charging: ["250 zł", "250 zł", "30-60 min"],
-    mic: ["250 zł", "350 zł", "30-60 min"],
-    speakerTop: ["150 zł", "450 zł", "30-60 min"],
-    speakerBottom: ["-", "180 zł", "30-60 min"],
-    buttons: ["200 zł", "300 zł", "30-60 min"],
-    housing: ["220-250 zł", "300 zł", "50-90 min"]
-  },
-  {
-    model: "iPhone 11",
-    generation: "iPhone 11",
-    variantLabel: "Standardowy",
-    screen: ["390 zł", "590 zł", "30-60 min"],
-    battery: ["190 zł", "350 zł", "15-30 min"],
-    backGlass: ["-", "300 zł", "1-2 dni robocze"],
-    rearCamera: ["-", "350 zł", "30-60 min"],
-    frontCamera: ["-", "200 zł", "30-60 min"],
-    charging: ["200 zł", "250 zł", "30-60 min"],
-    mic: ["250 zł", "350 zł", "30-60 min"],
-    speakerTop: ["150 zł", "450 zł", "30-60 min"],
-    speakerBottom: ["-", "180 zł", "30-60 min"],
-    buttons: ["200 zł", "300 zł", "30-60 min"],
-    housing: ["200-250 zł", "300 zł", "50-90 min"]
-  },
-  {
-    model: "iPhone XS Max",
-    generation: "iPhone X / XS / XR",
-    variantLabel: "XS Max",
-    screen: ["320 zł OLED", "490 zł", "30-60 min"],
-    battery: ["170 zł", "350 zł", "15-30 min"],
-    backGlass: ["-", "250 zł", "1-2 dni robocze"],
-    rearCamera: ["-", "300 zł", "15-30 min"],
-    frontCamera: ["-", "180 zł", "15-30 min"],
-    charging: ["150 zł", "200 zł", "15-30 min"],
-    mic: ["250 zł", "300 zł", "15-30 min"],
-    speakerTop: ["150 zł", "400 zł", "15-30 min"],
-    speakerBottom: ["-", "160 zł", "15-30 min"],
-    buttons: ["150 zł", "200 zł", "15-30 min"],
-    housing: ["160-200 zł", "300 zł", "50-90 min"]
-  },
-  {
-    model: "iPhone X / XS",
-    generation: "iPhone X / XS / XR",
-    variantLabel: "X / XS",
-    screen: ["320 zł OLED", "490 zł", "30-60 min"],
-    battery: ["170 zł", "250-350 zł", "15-30 min"],
-    backGlass: ["-", "250 zł", "1-2 dni robocze"],
-    rearCamera: ["-", "300 zł", "15-30 min"],
-    frontCamera: ["-", "180 zł", "15-30 min"],
-    charging: ["150 zł", "200 zł", "15-30 min"],
-    mic: ["200 zł", "250 zł", "15-30 min"],
-    speakerTop: ["150 zł", "400 zł", "15-30 min"],
-    speakerBottom: ["-", "160 zł", "15-30 min"],
-    buttons: ["150 zł", "200 zł", "15-30 min"],
-    housing: ["160-200 zł", "280 zł", "50-90 min"]
-  },
-  {
-    model: "iPhone XR",
-    generation: "iPhone X / XS / XR",
-    variantLabel: "XR",
-    screen: ["290 zł", "450 zł", "30-60 min"],
-    battery: ["170 zł", "350 zł", "15-30 min"],
-    backGlass: ["-", "250 zł", "1-2 dni robocze"],
-    rearCamera: ["-", "300 zł", "15-30 min"],
-    frontCamera: ["-", "180 zł", "15-30 min"],
-    charging: ["150 zł", "200 zł", "15-30 min"],
-    mic: ["200 zł", "250 zł", "15-30 min"],
-    speakerTop: ["150 zł", "400 zł", "15-30 min"],
-    speakerBottom: ["-", "160 zł", "15-30 min"],
-    buttons: ["150 zł", "200 zł", "15-30 min"],
-    housing: ["160-200 zł", "280 zł", "50-90 min"]
-  },
-  {
-    model: "iPhone 8 / SE 2020",
-    generation: "iPhone 8 / SE",
-    variantLabel: "8 / SE 2020",
-    screen: ["180 zł", "280 zł", "15-30 min"],
-    battery: ["120 zł", "200-350 zł", "15-30 min"],
-    backGlass: ["-", "200 zł", "1-2 dni robocze"],
-    rearCamera: ["-", "250 zł", "15-30 min"],
-    frontCamera: ["-", "150 zł", "15-30 min"],
-    charging: ["120 zł", "190 zł", "15-30 min"],
-    mic: ["120 zł", "190 zł", "15-30 min"],
-    speakerTop: ["100 zł", "140 zł", "15-30 min"],
-    speakerBottom: ["-", "150 zł", "15-30 min"],
-    buttons: ["140 zł", "200 zł", "30-50 min"],
-    home: ["-", "150 zł", "15-30 min"],
-    sim: ["170 zł", "180 zł", "15-30 min"],
-    housing: ["130-160 zł", "250 zł", "50-90 min"],
-    sensor: ["-", "180 zł", "15-30 min"]
-  },
-  {
-    model: "iPhone 8 Plus",
-    generation: "iPhone 8 / SE",
-    variantLabel: "8 Plus",
-    screen: ["180 zł", "280 zł", "15-30 min"],
-    battery: ["120 zł", "200 zł", "15-30 min"],
-    backGlass: ["-", "200 zł", "1-2 dni robocze"],
-    rearCamera: ["-", "250 zł", "15-30 min"],
-    frontCamera: ["-", "150 zł", "15-30 min"],
-    charging: ["120 zł", "190 zł", "15-30 min"],
-    mic: ["120 zł", "190 zł", "15-30 min"],
-    speakerTop: ["100 zł", "140 zł", "15-30 min"],
-    speakerBottom: ["-", "150 zł", "15-30 min"],
-    buttons: ["140 zł", "200 zł", "30-50 min"],
-    home: ["-", "150 zł", "15-30 min"],
-    sim: ["170 zł", "180 zł", "15-30 min"],
-    housing: ["130-160 zł", "250 zł", "50-90 min"],
-    sensor: ["-", "180 zł", "15-30 min"]
-  },
-  {
-    model: "iPhone 7 Plus",
-    generation: "iPhone 7",
-    variantLabel: "Plus",
-    screen: ["160 zł", "220 zł", "15-30 min"],
-    battery: ["120 zł", "200 zł", "15-30 min"],
-    rearCamera: ["-", "180 zł", "15-30 min"],
-    frontCamera: ["-", "100 zł", "15-30 min"],
-    charging: ["100 zł", "150 zł", "15-30 min"],
-    mic: ["100 zł", "150 zł", "15-30 min"],
-    speakerTop: ["100 zł", "140 zł", "15-30 min"],
-    speakerBottom: ["-", "100 zł", "15-30 min"],
-    buttons: ["120 zł", "160 zł", "30-50 min"],
-    home: ["-", "120 zł", "15-30 min"],
-    sim: ["140 zł", "150 zł", "15-30 min"],
-    housing: ["120-150 zł", "200 zł", "50-90 min"],
-    sensor: ["-", "140 zł", "15-30 min"]
-  },
-  {
-    model: "iPhone 7",
-    generation: "iPhone 7",
-    variantLabel: "Standardowy",
-    screen: ["160 zł", "220 zł", "15-30 min"],
-    battery: ["120 zł", "200 zł", "15-30 min"],
-    rearCamera: ["-", "150 zł", "15-30 min"],
-    frontCamera: ["-", "100 zł", "15-30 min"],
-    charging: ["100 zł", "150 zł", "15-30 min"],
-    mic: ["100 zł", "140 zł", "15-30 min"],
-    speakerTop: ["100 zł", "140 zł", "15-30 min"],
-    speakerBottom: ["-", "100 zł", "15-30 min"],
-    buttons: ["120 zł", "160 zł", "30-50 min"],
-    home: ["-", "120 zł", "15-30 min"],
-    sim: ["140 zł", "150 zł", "15-30 min"],
-    housing: ["120-150 zł", "200 zł", "50-90 min"],
-    sensor: ["-", "140 zł", "15-30 min"]
-  },
-  {
-    model: "iPhone 6 / 6s",
-    generation: "iPhone 6 / 6s",
-    variantLabel: "Standardowy",
-    screen: ["140 zł", "230 zł", "15-30 min"],
-    battery: ["110 zł", "200 zł", "15-30 min"],
-    rearCamera: ["-", "100 zł", "15-30 min"],
-    frontCamera: ["-", "100 zł", "15-30 min"],
-    charging: ["90 zł", "100 zł", "15-30 min"],
-    mic: ["90 zł", "100 zł", "15-30 min"],
-    speakerTop: ["90 zł", "100 zł", "15-30 min"],
-    speakerBottom: ["-", "100 zł", "15-30 min"],
-    buttons: ["90 zł", "120 zł", "30-50 min"],
-    home: ["-", "100 zł", "15-30 min"],
-    sim: ["100 zł", "120 zł", "15-30 min"],
-    housing: ["60-90 zł", "150 zł", "50-90 min"],
-    sensor: ["-", "100 zł", "15-30 min"]
-  },
-  {
-    model: "iPhone 6 Plus / 6s Plus",
-    generation: "iPhone 6 / 6s",
-    variantLabel: "Plus",
-    screen: ["140 zł", "230 zł", "15-30 min"],
-    battery: ["110 zł", "200 zł", "15-30 min"],
-    rearCamera: ["-", "100 zł", "15-30 min"],
-    frontCamera: ["-", "100 zł", "15-30 min"],
-    charging: ["90 zł", "250 zł", "15-30 min"],
-    mic: ["90 zł", "250 zł", "15-30 min"],
-    speakerTop: ["90 zł", "100 zł", "15-30 min"],
-    speakerBottom: ["-", "100 zł", "15-30 min"],
-    buttons: ["90 zł", "120 zł", "30-50 min"],
-    home: ["-", "100 zł", "15-30 min"],
-    sim: ["200 zł", "200 zł", "15-30 min"],
-    housing: ["60-90 zł", "150 zł", "50-90 min"],
-    sensor: ["-", "200 zł", "15-30 min"]
-  },
-  {
-    model: "iPhone 5 / 5s / SE",
-    generation: "iPhone 5 / SE",
-    variantLabel: "Standardowy",
-    screen: ["130 zł", "200 zł", "15-30 min"],
-    battery: ["100 zł", "150 zł", "15-30 min"],
-    rearCamera: ["-", "90 zł", "15-30 min"],
-    frontCamera: ["-", "80 zł", "15-30 min"],
-    charging: ["80 zł", "90 zł", "15-30 min"],
-    mic: ["80 zł", "90 zł", "15-30 min"],
-    speakerTop: ["80 zł", "90 zł", "15-30 min"],
-    speakerBottom: ["-", "80 zł", "15-30 min"],
-    buttons: ["80 zł", "100 zł", "30-50 min"],
-    home: ["-", "80 zł", "15-30 min"],
-    sim: ["80 zł", "100 zł", "15-30 min"],
-    housing: ["50-80 zł", "100 zł", "50-90 min"],
-    sensor: ["-", "80 zł", "15-30 min"]
-  },
-  {
-    model: "iPhone 4s",
-    generation: "iPhone 4s",
-    variantLabel: "Standardowy",
-    screen: ["100 zł", "brak", "15-30 min"],
-    battery: ["100 zł", "brak", "15-30 min"]
+// Zamienia wpis z cennika ("450*", 270, null) na cenę i czas do wyświetlenia.
+function getServicePrice(item, service) {
+  const raw = item[service.klucz];
+  if (raw === null || raw === undefined) {
+    return null;
   }
-];
+  const match = String(raw).trim().match(/^(\d+)(\**)$/);
+  if (!match) {
+    return null;
+  }
+  return {
+    amount: Number(match[1]),
+    price: `${match[1]} zł`,
+    time: CZAS_GWIAZDKA[match[2]] || CZAS_STANDARD
+  };
+}
 
-const POPULAR_MODELS = ["iPhone 17 Pro Max", "iPhone 17", "iPhone 16", "iPhone 15 Pro Max", "iPhone 14", "iPhone 13 / 13 mini"];
+function getServiceLabel(service) {
+  return service.czesc ? `${service.naprawa} (${service.czesc})` : service.naprawa;
+}
+
+function getAvailableServices(item, groups) {
+  return USLUGI
+    .filter((service) => !groups || groups.includes(service.grupa))
+    .map((service) => ({ service, price: getServicePrice(item, service) }))
+    .filter((entry) => entry.price);
+}
+
+const POPULAR_MODELS = ["iPhone 17 Pro Max", "iPhone 17", "iPhone 16", "iPhone 15 Pro Max", "iPhone 14", "iPhone 13"];
 
 const modelList = document.querySelector("[data-model-list]");
 const generationSelect = document.querySelector("[data-generation-select]");
@@ -708,12 +256,20 @@ function renderPrices(item = DEFAULT_MODEL) {
     }
   }
 
-  SERVICES.forEach(([key, label]) => {
-    const values = item[key] || NA;
+  getAvailableServices(item).forEach(({ service, price }) => {
     const row = document.createElement("tr");
-    const cells = [label, values[0], values[1], values[2]];
 
-    cells.forEach((value) => {
+    const nameCell = document.createElement("td");
+    nameCell.textContent = service.naprawa;
+    if (service.czesc) {
+      const part = document.createElement("span");
+      part.className = "price-part";
+      part.textContent = service.czesc;
+      nameCell.append(part);
+    }
+    row.append(nameCell);
+
+    [price.price, price.time].forEach((value) => {
       const cell = document.createElement("td");
       cell.textContent = value;
       row.append(cell);
@@ -993,14 +549,14 @@ function findBotProblemMatch(message) {
   return BOT_PROBLEM_TOPICS.find((topic) => topic.keywords.some((keyword) => normalized.includes(normalizeBotText(keyword)))) || null;
 }
 
-// Mapa usterek na klucze z PRICE_DATA/SERVICES - żeby bot odpowiadał dokładnie
+// Mapa usterek na grupy usług z cennik.js (pole "grupa") - żeby bot odpowiadał dokładnie
 // na zapytaną część, a nie zawsze podsumowaniem ekran+bateria. Oprócz nazw usług
 // (np. "ekran") rozpoznaje też opisy objawów, jak realnie pisze klient
 // (np. "pękł mi ekran", "nie ładuje się", "słabo trzyma baterię").
 const BOT_PART_GROUPS = [
   {
     keywords: ["aparat", "kamer", "rozmazane zdjęcia", "nie robi zdjęć", "facetime", "nie widzę obrazu z aparatu"],
-    keys: ["rearCamera", "frontCamera"]
+    keys: ["camera"]
   },
   {
     keywords: ["ekran", "wyświetlacz", "szybk", "display", "matryc", "pękł", "pęknięty", "peknieta", "rozbity", "miga", "plamy", "nie reaguje na dotyk", "czarny ekran", "nie widać obrazu"],
@@ -1016,19 +572,19 @@ const BOT_PART_GROUPS = [
   },
   {
     keywords: ["głośnik", "charczy", "cichy dźwięk", "rozmówcy nie słyszą", "słabo słychać", "nie słyszę rozmówcy"],
-    keys: ["speakerTop", "speakerBottom"]
+    keys: ["speaker"]
   },
   {
     keywords: ["mikrofon", "mnie nie słyszą", "nie słychać mnie", "rozmówca mnie nie słyszy"],
-    keys: ["mic"]
+    keys: ["charging"]
   },
   {
     keywords: ["obudow", "korpus", "szkło tylne", "tylna szyb", "tył telefonu", "pęknięta obudowa", "tył się rozleciał"],
-    keys: ["housing", "backGlass"]
+    keys: ["backGlass"]
   },
   {
     keywords: ["przycisk", "guzik", "home", "nie działa przycisk", "nie reaguje przycisk"],
-    keys: ["buttons", "home"]
+    keys: ["buttons"]
   },
   {
     keywords: ["czujnik zbliżeniowy", "czujnik"],
@@ -1046,7 +602,9 @@ function escapeBotRegExp(value) {
 
 function findBotModelMatch(message) {
   const normalized = normalizeBotText(message);
-  return PRICE_DATA.find((item) => normalized.includes(normalizeBotText(item.model))) || null;
+  // Najdłuższa pasująca nazwa wygrywa - "iPhone 13 mini" nie może trafić w "iPhone 13".
+  const matches = PRICE_DATA.filter((item) => normalized.includes(normalizeBotText(item.model)));
+  return matches.sort((a, b) => b.model.length - a.model.length)[0] || null;
 }
 
 // Rozpoznaje wariant modelu po samym numerze/nazwie, bez słowa "iPhone"
@@ -1105,19 +663,21 @@ function findBotRuleMatch(message) {
 }
 
 function formatPartAnswer(item, partGroup) {
-  const lines = partGroup.keys.map((key) => {
-    const serviceEntry = SERVICES.find(([entryKey]) => entryKey === key);
-    const label = serviceEntry ? serviceEntry[1] : key;
-    const values = item[key] || NA;
-    return `${label} — zamiennik ${values[0]}, oryginał ${values[1]}, czas ${values[2]}`;
-  });
+  const entries = getAvailableServices(item, partGroup.keys);
+  if (entries.length === 0) {
+    return `Dla ${item.model} tę naprawę wyceniamy indywidualnie — zadzwoń: 570 222 345.`;
+  }
+  const lines = entries.map(({ service, price }) => `${getServiceLabel(service)} — ${price.price}, czas: ${price.time}`);
   return `Dla ${item.model}: ${lines.join("; ")}.`;
 }
 
+function formatLowestPrice(item, group) {
+  const amounts = getAvailableServices(item, [group]).map(({ price }) => price.amount);
+  return amounts.length ? `od ${Math.min(...amounts)} zł` : "na zapytanie";
+}
+
 function formatGeneralAnswer(item) {
-  const screen = item.screen ? item.screen[1] : "Na zapytanie";
-  const battery = item.battery ? item.battery[1] : "Na zapytanie";
-  return `Dla ${item.model}: wymiana ekranu (oryginał) ${screen}, wymiana baterii (oryginał) ${battery}. Pełny cennik i pozostałe naprawy zobaczysz w sekcji cennika.`;
+  return `Dla ${item.model}: wymiana wyświetlacza ${formatLowestPrice(item, "screen")}, wymiana baterii ${formatLowestPrice(item, "battery")}. Pełny cennik i pozostałe naprawy zobaczysz w sekcji cennika.`;
 }
 
 // Kontekst rozmowy - bot zapamiętuje ostatnio wspomniany model w tej sesji czatu,
